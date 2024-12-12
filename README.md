@@ -2316,3 +2316,270 @@ Limpia los campos del formulario, dejándolos en blanco.
         txtCedula.setText("");
     }
 ```
+
+
+### VAdmNuevaMateria
+
+![image](https://github.com/user-attachments/assets/4ec25ac0-7c79-41f8-8c96-29461168e398)
+
+**`Constructor VAdmNuevaMateria`**
+
+Este constructor inicializa los componentes de la interfaz gráfica utilizando el método initComponents(), que configura todos los elementos visuales y su disposición. Además, llama a los métodos loadProfessorNames() y loadHours() para cargar los nombres de los profesores y las horas disponibles en los respectivos JComboBox. Finalmente, establece la ventana en un estado maximizado (MAXIMIZED_BOTH) para ocupar toda la pantalla.
+
+```java
+    public VAdmNuevaMateria() {
+        initComponents();
+        loadProfessorNames();
+        loadHours();
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+    }
+```
+**`btnVolverActionPerformed`**
+
+Este método se ejecuta cuando el usuario presiona el botón "Volver". Su función principal es cerrar la ventana actual (dispose()), permitiendo al usuario regresar a la pantalla anterior.
+
+```java
+    private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        // TODO add your handling code here:
+        this.dispose();
+    }                                         
+```
+
+**`btnCrearActionPerformed`**
+
+Este es el método más complejo y contiene la lógica para crear una nueva materia. Valida primero que el usuario haya seleccionado un profesor y haya ingresado el nombre de la materia. Luego, abre un cuadro de diálogo (JDialog) que permite al usuario seleccionar los días de la semana para la materia mediante JCheckBox. Una vez que se seleccionan los días y las horas de inicio y fin, el método valida que la hora de fin sea posterior a la de inicio y guarda toda la información en la base de datos mediante una consulta SQL (INSERT INTO materias). Si hay algún error durante este proceso, se muestra un mensaje apropiado.
+
+```java
+    private void btnCrearActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        try {
+        // Validar si se seleccionó un profesor
+        int selectedIndex = cmbUsuario.getSelectedIndex();
+        if (selectedIndex <= 0) {
+            JOptionPane.showMessageDialog(null, "Debe seleccionar un profesor.");
+            return;
+        }
+
+        // Validar nombre de materia
+        if (txtNombreMateria.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Debe ingresar un nombre para la materia.");
+            return;
+        }
+
+        // Obtener el ID del profesor seleccionado
+        int profesorId = getProfesorIdFromComboBox(selectedIndex);
+
+        // Crear un diálogo para seleccionar múltiples días
+        JDialog dialogoDias = new JDialog();
+        dialogoDias.setTitle("Selecciona los días");
+        dialogoDias.setLayout(new BorderLayout());
+        
+        String[] diasSemana = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes"};
+        JCheckBox[] checkBoxDias = new JCheckBox[diasSemana.length];
+        JPanel panelDias = new JPanel(new GridLayout(0, 3));
+        
+        for (String dia : diasSemana) {
+            JCheckBox checkBox = new JCheckBox(dia);
+            panelDias.add(checkBox);
+            checkBoxDias[Arrays.asList(diasSemana).indexOf(dia)] = checkBox;
+        }
+        
+        JButton botonAceptar = new JButton("Aceptar");
+        botonAceptar.addActionListener(e -> {
+            List<String> diasSeleccionados = new ArrayList<>();
+            for (JCheckBox checkBox : checkBoxDias) {
+                if (checkBox.isSelected()) {
+                    diasSeleccionados.add(checkBox.getText());
+                }
+            }
+            
+            // Validar que se hayan seleccionado días
+            if (diasSeleccionados.isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Debe seleccionar al menos un día.");
+                return;
+            }
+            
+            try {
+                // Conexión a la base de datos
+                Connection conn = ConexionDB.getConnection();
+                String query = "INSERT INTO materias (nombre_materia, creditos, aula, semestre, cupo, id_profesor, dia_semana, hora_inicio, hora_fin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+                PreparedStatement pst = conn.prepareStatement(query);
+                pst.setString(1, txtNombreMateria.getText());
+                pst.setInt(2, Integer.parseInt(cmbCréditos.getSelectedItem().toString()));
+                pst.setString(3, cmbAula.getSelectedItem().toString());
+                pst.setInt(4, Integer.parseInt(cmbSemestre.getSelectedItem().toString()));
+                pst.setInt(5, Integer.parseInt(cmbCupo.getSelectedItem().toString()));
+
+                // Establecer el ID del profesor en la consulta
+                pst.setInt(6, profesorId);
+
+                // Convertir días seleccionados a string separado por comas
+                String diasParaBaseDeDatos = String.join(", ", diasSeleccionados);
+                pst.setString(7, diasParaBaseDeDatos);
+                
+                // Al obtener la hora del ComboBox, convertirla a formato adecuado
+                String horaInicioStr = cmbHoraInicio.getSelectedItem().toString();
+                String horaFinStr = cmbHoraFin.getSelectedItem().toString();
+                
+                // Convertir la hora al formato adecuado para la base de datos
+                Time horaInicio = Time.valueOf(horaInicioStr + ":00");
+                Time horaFin = Time.valueOf(horaFinStr + ":00");
+
+                // Validar que la hora de fin sea posterior a la hora de inicio
+                if (horaFin.before(horaInicio) || horaFin.equals(horaInicio)) {
+                    JOptionPane.showMessageDialog(null, "La hora de fin debe ser posterior a la hora de inicio.");
+                    return;
+                }
+
+                pst.setTime(8, horaInicio);  // Hora de inicio
+                pst.setTime(9, horaFin);     // Hora de fin
+
+                // Ejecutar la consulta
+                pst.executeUpdate();
+
+                JOptionPane.showMessageDialog(null, "Materia creada exitosamente");
+
+                pst.close();
+                conn.close();
+                dialogoDias.dispose();
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(null, "Error al crear la materia: " + ex.getMessage());
+                ex.printStackTrace();
+            }
+        });
+        
+        dialogoDias.add(panelDias, BorderLayout.CENTER);
+        dialogoDias.add(botonAceptar, BorderLayout.SOUTH);
+        dialogoDias.pack();
+        dialogoDias.setLocationRelativeTo(null);
+        dialogoDias.setVisible(true);
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error inesperado: " + e.getMessage());
+        e.printStackTrace();
+    }
+    }
+```                                        
+
+**`cmbUsuarioActionPerformed`**
+
+Este método se ejecuta cuando el usuario selecciona un profesor del JComboBox que lista a los docentes. Recupera el índice seleccionado y obtiene los datos del profesor (nombre, apellidos y correo) desde una lista local (profesoresList). Los datos se muestran automáticamente en los campos de texto correspondientes (txtNDocente y txtCorreo). Si no se selecciona ningún profesor, los campos se limpian.
+
+```java
+    private void cmbUsuarioActionPerformed(java.awt.event.ActionEvent evt) {                                           
+  int selectedIndex = cmbUsuario.getSelectedIndex();
+
+    if (selectedIndex > 0) {
+        Profesor profesorSeleccionado = profesoresList.get(selectedIndex - 1);
+        txtNDocente.setText(profesorSeleccionado.nombre + " " + profesorSeleccionado.apellidoPaterno + " " + profesorSeleccionado.apellidoMaterno);
+        txtCorreo.setText(profesorSeleccionado.correo);
+    } else {
+        txtNDocente.setText("");
+        txtCorreo.setText("");
+    }
+    }                                          
+```
+
+**`loadHours`**
+
+Este método llena los JComboBox correspondientes a las horas de inicio y fin con intervalos de 30 minutos, desde las 00:00 hasta las 23:30. Utiliza un bucle para generar las horas en formato HH:mm y las añade dinámicamente a las listas desplegables.
+
+```java                                               
+// Método para cargar los nombres de los profesores en el ComboBox
+    private void loadHours() {
+    // Formato de hora: de 00:00 a 23:00 en intervalos de 1 hora
+    for (int hour = 0; hour < 24; hour++) {
+        for (int minute = 0; minute < 60; minute += 30) {  // Intervalos de 30 minutos
+            String hourString = String.format("%02d:%02d", hour, minute);
+            cmbHoraInicio.addItem(hourString);
+            cmbHoraFin.addItem(hourString);
+        }
+    }
+}
+```
+
+**`loadProfessorNames`**
+
+Carga los nombres de los profesores desde la base de datos. Se conecta a la base de datos mediante una clase llamada ConexionDB y ejecuta una consulta SQL para obtener información de los profesores que están registrados como usuarios de tipo "Profesor". Los resultados se añaden al JComboBox que lista a los profesores para que el usuario pueda seleccionarlos al crear una materia.
+
+```java
+private void loadProfessorNames() {
+    try {
+        // Conexión a la base de datos
+        Connection conn = ConexionDB.getConnection();
+        String query = "SELECT p.id, p.nombre, p.apellido_paterno, p.apellido_materno, p.telefono, p.domicilio, p.cedula, u.correo " +
+                       "FROM profesores p " +
+                       "JOIN usuarios u ON p.id_usuario = u.id " +
+                       "WHERE u.tipo_usuario = 'Profesor'";
+
+        PreparedStatement pst = conn.prepareStatement(query);
+        ResultSet rs = pst.executeQuery();
+
+        // Limpiar los elementos existentes
+        cmbUsuario.removeAllItems();
+        cmbUsuario.addItem("Seleccionar Profesor");
+
+        // Lista para almacenar información de profesores
+        profesoresList.clear();
+
+        // Llenar el ComboBox con los nombres de los profesores
+        while (rs.next()) {
+            int usuarioId = rs.getInt("id");
+            String nombre = rs.getString("nombre");
+            String apellidoPaterno = rs.getString("apellido_paterno");
+            String apellidoMaterno = rs.getString("apellido_materno");
+            String correo = rs.getString("correo");
+
+            String fullName = nombre + " " + apellidoPaterno + " " + apellidoMaterno;
+            cmbUsuario.addItem(fullName);
+
+            // Guardar información completa del profesor
+            Profesor profesor = new Profesor(usuarioId, nombre, apellidoPaterno, apellidoMaterno, correo);
+            profesoresList.add(profesor);
+        }
+
+        rs.close();
+        pst.close();
+        conn.close();
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, "Error al cargar profesores: " + e.getMessage());
+        e.printStackTrace();
+    }
+}
+```
+
+**`getProfesorIdFromComboBox`**
+
+Este método se utiliza para obtener el ID del profesor seleccionado en el JComboBox que lista a los docentes.
+Recibe como parámetro el índice seleccionado (selectedIndex) en el JComboBox.
+Si el índice es mayor a 0 (es decir, no se seleccionó la opción predeterminada), obtiene el objeto Profesor correspondiente desde la lista profesoresList restando 1 al índice (ya que el JComboBox incluye una opción inicial vacía). Devuelve el ID del profesor seleccionado. Si no se seleccionó ningún profesor (índice 0), retorna -1 para indicar un valor inválido.
+
+```java
+private int getProfesorIdFromComboBox(int selectedIndex) {
+        if (selectedIndex > 0) {
+            Profesor profesorSeleccionado = profesoresList.get(selectedIndex - 1);
+            return profesorSeleccionado.id;
+        }
+        return -1;  // Retorna -1 si no se seleccionó un profesor
+    }
+
+// Clase para almacenar información del profesor
+// Clase para almacenar información del profesor
+private class Profesor {
+    int id;
+    String nombre;
+    String apellidoPaterno;
+    String apellidoMaterno;
+    String correo;
+    
+    public Profesor(int id, String nombre, String apellidoPaterno, String apellidoMaterno, String correo) {
+        this.id = id;
+        this.nombre = nombre;
+        this.apellidoPaterno = apellidoPaterno;
+        this.apellidoMaterno = apellidoMaterno;
+        this.correo = correo;
+    }
+}
+```
+
+
+
