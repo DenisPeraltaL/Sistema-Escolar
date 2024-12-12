@@ -1,10 +1,6 @@
 # Sistema escolar "Hope"
-**Contenido**
-[TOCM]
-[TOC]
 
 # MODELO
-
 ## Alumno
 
 En modelo, tenemos la clase Alumno que representa un modelo para almacenar la información de un alumno.
