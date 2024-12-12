@@ -2008,3 +2008,311 @@ Carga en el ComboBox los usuarios de tipo "Alumno" desde la base de datos, mostr
         }
         }
 ```
+
+
+
+
+
+
+
+### RegistroProfesor
+
+![image](https://github.com/user-attachments/assets/156c31e2-c901-4096-b53e-28b684a85ead)
+
+**`btnVolverActionPerformed`**
+
+Cierra la ventana actual al ser llamado.
+
+```java
+    private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        this.dispose();
+    }                                         
+```
+
+**`btnAñadirActionPerformed`**
+
+Valida que los campos del formulario estén completos, extrae los datos ingresados, e inserta un nuevo profesor en la base de datos, asociándolo con un usuario seleccionado del combo box. Si la operación es exitosa, limpia los campos y actualiza la tabla.
+
+```java
+    private void btnAñadirActionPerformed(java.awt.event.ActionEvent evt) {                                          
+   // Validar si hay un usuario seleccionado
+    String selectedItem = (String) cmbUsuario.getSelectedItem();
+    if (selectedItem == null || selectedItem.startsWith("0 -")) {
+        JOptionPane.showMessageDialog(this, "Por favor seleccione un usuario válido.");
+        return;
+    }
+
+    // Extraer el ID del usuario seleccionado
+    int idUsuario = Integer.parseInt(selectedItem.split(" - ")[0]);
+
+    // Validar los datos del formulario
+    String nombre = txtNombre2.getText();
+    String apellidoP = txtApellidoP.getText();
+    String apellidoM = txtApellidoM.getText();
+    String telefono = txtNumTel.getText();
+    String domicilio = txtDomicilio.getText();
+    String cedula = txtCedula.getText();
+
+    if (nombre.isEmpty() || apellidoP.isEmpty() || apellidoM.isEmpty() || telefono.isEmpty() || domicilio.isEmpty() || cedula.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Por favor complete todos los campos.");
+        return;
+    }
+
+    // Insertar los datos en la tabla profesores
+    try (Connection conn = ConexionDB.getConnection()) {
+        String query = "INSERT INTO profesores (id_usuario, nombre, apellido_paterno, apellido_materno, telefono, domicilio, cedula) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement pst = conn.prepareStatement(query)) {
+            pst.setInt(1, idUsuario);
+            pst.setString(2, nombre);
+            pst.setString(3, apellidoP);
+            pst.setString(4, apellidoM);
+            pst.setString(5, telefono);
+            pst.setString(6, domicilio);
+            pst.setString(7, cedula);
+            pst.executeUpdate();
+        }
+
+        JOptionPane.showMessageDialog(this, "Profesor añadido exitosamente.");
+        limpiarCampos();
+        cargarTabla();  // Actualizar tabla después de añadir
+
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(this, "Error al añadir el profesor: " + ex.getMessage());
+    }
+    }                                         
+```
+
+**`btnModificarActionPerformed`**
+
+Permite modificar los datos de un profesor seleccionado en la tabla. Valida que los campos no estén vacíos, actualiza los datos en la base de datos, y recarga la tabla con la información actualizada.
+
+```java
+    private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {                                             
+ // Acción para modificar los datos de un profesor
+        int selectedRow = jTable1.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Por favor seleccione un profesor de la tabla.");
+            return;
+        }
+
+        int profesorId = (int) jTable1.getValueAt(selectedRow, 0); // Obtiene el ID del profesor seleccionado
+        String nombre = txtNombre2.getText();
+        String apellidoP = txtApellidoP.getText();
+        String apellidoM = txtApellidoM.getText();
+        String telefono = txtNumTel.getText();
+        String domicilio = txtDomicilio.getText();
+        String cedula = txtCedula.getText();
+
+        if (nombre.isEmpty() || apellidoP.isEmpty() || apellidoM.isEmpty() || telefono.isEmpty() || domicilio.isEmpty() || cedula.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor complete todos los campos.");
+            return;
+        }
+
+        try (Connection conn = ConexionDB.getConnection()) {
+            String query = "UPDATE profesores SET nombre = ?, apellido_paterno = ?, apellido_materno = ?, telefono = ?, domicilio = ?, cedula = ? WHERE id = ?";
+            try (PreparedStatement pst = conn.prepareStatement(query)) {
+                pst.setString(1, nombre);
+                pst.setString(2, apellidoP);
+                pst.setString(3, apellidoM);
+                pst.setString(4, telefono);
+                pst.setString(5, domicilio);
+                pst.setString(6, cedula);
+                pst.setInt(7, profesorId);
+                pst.executeUpdate();
+            }
+
+            JOptionPane.showMessageDialog(this, "Profesor modificado exitosamente.");
+            limpiarCampos();
+            cargarTabla();  // Recargar los datos de la tabla
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al modificar el profesor: " + ex.getMessage());
+        }
+    }
+```
+
+**`btnEliminarActionPerformed`**
+
+Elimina un profesor seleccionado de la base de datos, basado en el ID seleccionado desde la tabla, y luego actualiza la tabla.
+
+```java
+    private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {                                            
+ // Acción para eliminar un profesor de la base de datos
+        int selectedRow = jTable1.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Por favor seleccione un profesor de la tabla.");
+            return;
+        }
+
+        int profesorId = (int) jTable1.getValueAt(selectedRow, 0); // Obtiene el ID del profesor seleccionado
+
+        try (Connection conn = ConexionDB.getConnection()) {
+            String query = "DELETE FROM profesores WHERE id = ?";
+            try (PreparedStatement pst = conn.prepareStatement(query)) {
+                pst.setInt(1, profesorId);
+                pst.executeUpdate();
+            }
+
+            JOptionPane.showMessageDialog(this, "Profesor eliminado exitosamente.");
+            cargarTabla();  // Recargar los datos de la tabla
+
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al eliminar el profesor: " + ex.getMessage());
+        }
+    }                                           
+```
+
+**`jTable1MouseClicked`**
+
+Al hacer clic en una fila de la tabla, obtiene el ID del profesor y recupera sus datos desde la base de datos para rellenar los campos del formulario.
+
+```java
+    private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {                                     
+     // Obtener la fila seleccionada de la tabla
+    int row = jTable1.getSelectedRow();
+
+    if (row != -1) {
+        // Obtener el ID del profesor desde la tabla
+        int idProfesor = (int) jTable1.getValueAt(row, 0); // La columna 0 tiene el ID del profesor
+
+        // Realizar consulta a la base de datos para obtener los datos completos
+        try (Connection conn = ConexionDB.getConnection()) {
+            String query = "SELECT nombre, apellido_paterno, apellido_materno, telefono, domicilio, cedula FROM profesores WHERE id = ?";
+            try (PreparedStatement pst = conn.prepareStatement(query)) {
+                pst.setInt(1, idProfesor);
+                try (ResultSet rs = pst.executeQuery()) {
+                    if (rs.next()) {
+                        // Obtener los datos del profesor
+                        String nombre = rs.getString("nombre");
+                        String apellidoPaterno = rs.getString("apellido_paterno");
+                        String apellidoMaterno = rs.getString("apellido_materno");
+                        String telefono = rs.getString("telefono");
+                        String domicilio = rs.getString("domicilio");
+                        String cedula = rs.getString("cedula");
+
+                        // Rellenar los campos con los datos obtenidos
+                        txtNombre2.setText(nombre);
+                        txtApellidoP.setText(apellidoPaterno);
+                        txtApellidoM.setText(apellidoMaterno);
+                        txtNumTel.setText(telefono);
+                        txtDomicilio.setText(domicilio);
+                        txtCedula.setText(cedula);
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al cargar los datos del profesor: " + ex.getMessage());
+        }
+    }
+    }                                    
+```
+
+**`cmbUsuarioActionPerformed`**
+
+Carga los datos del usuario seleccionado en el combo box (incluyendo nombre, apellidos y correo), rellenando los campos del formulario con esta información.
+
+```java
+    private void cmbUsuarioActionPerformed(java.awt.event.ActionEvent evt) {                                           
+       // Validar que haya un usuario seleccionado
+    String selectedItem = (String) cmbUsuario.getSelectedItem();
+    if (selectedItem != null && !selectedItem.startsWith("0 -")) {
+        // Extraer el ID del usuario desde el String seleccionado
+        int idUsuario = Integer.parseInt(selectedItem.split(" - ")[0]);
+
+        // Consultar los datos del usuario seleccionado
+        try (Connection conn = ConexionDB.getConnection()) {
+            String query = "SELECT nombre, apellidos, correo FROM usuarios WHERE id = ?";
+            try (PreparedStatement pst = conn.prepareStatement(query)) {
+                pst.setInt(1, idUsuario);
+                try (ResultSet rs = pst.executeQuery()) {
+                    if (rs.next()) {
+                        // Dividir los apellidos y llenar los campos correspondientes
+                        String[] apellidos = rs.getString("apellidos").split(" ");
+                        txtNombre2.setText(rs.getString("nombre"));
+                        txtApellidoP.setText(apellidos.length > 0 ? apellidos[0] : "");
+                        txtApellidoM.setText(apellidos.length > 1 ? apellidos[1] : "");
+                        txtCorreo.setText(rs.getString("correo"));
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al cargar datos del usuario: " + ex.getMessage());
+        }
+    }
+    }
+```
+
+**`initUserComboBox`**
+
+Inicializa el combo box de usuarios cargando los datos de usuarios tipo "Profesor" desde la base de datos y agregándolos como opciones.
+
+```java
+private void initUserComboBox() {
+    try (Connection conn = ConexionDB.getConnection()) {
+        String query = "SELECT id, nombre, apellidos FROM usuarios WHERE tipo_usuario = 'Profesor'";
+        try (PreparedStatement pst = conn.prepareStatement(query);
+             ResultSet rs = pst.executeQuery()) {
+
+            // Limpiar los elementos existentes
+            cmbUsuario.removeAllItems();
+            cmbUsuario.addItem("0 - Seleccionar Usuario"); // Primera opción vacía
+
+            while (rs.next()) {
+                int idUsuario = rs.getInt("id");
+                String nombreCompleto = rs.getString("nombre") + " " + rs.getString("apellidos");
+
+                // Añadir el ID y el nombre completo como cadena
+                cmbUsuario.addItem(idUsuario + " - " + nombreCompleto);
+            }
+        }
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(this, "Error al cargar usuarios: " + ex.getMessage());
+    }
+}
+```
+
+**`cargarTabla`**
+
+Carga los datos de los profesores desde la base de datos y los muestra en la tabla, actualizando su contenido.
+
+```java
+    private void cargarTabla() {
+        try (Connection conn = ConexionDB.getConnection()) {
+            String query = "SELECT p.id AS id_profesor, p.id_usuario, p.nombre, p.telefono, p.cedula, p.domicilio FROM profesores p";
+            try (PreparedStatement pst = conn.prepareStatement(query);
+                 ResultSet rs = pst.executeQuery()) {
+
+                DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+                model.setRowCount(0);  // Limpiar la tabla antes de agregar los datos
+
+                while (rs.next()) {
+                    model.addRow(new Object[]{
+                        rs.getInt("id_profesor"),     // id del profesor
+                        rs.getInt("id_usuario"),      // id del usuario donde se registró como profesor
+                        rs.getString("nombre"),       // nombre del profesor
+                        rs.getString("telefono"),     // teléfono del profesor
+                        rs.getString("cedula"),       // cédula del profesor
+                        rs.getString("domicilio")     // domicilio del profesor
+                    });
+                }
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al cargar los datos: " + ex.getMessage());
+        }
+    }
+```
+
+**`limpiarCampos`**
+
+Limpia los campos del formulario, dejándolos en blanco.
+
+```java
+    private void limpiarCampos() {
+        txtNombre2.setText("");
+        txtApellidoP.setText("");
+        txtApellidoM.setText("");
+        txtNumTel.setText("");
+        txtDomicilio.setText("");
+        txtCedula.setText("");
+    }
+```
