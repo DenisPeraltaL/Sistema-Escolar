@@ -1092,3 +1092,231 @@ public class ValidacionUsuario {
 ```
 
 ## VISTA
+
+### Login
+
+En nuestra vista login, se incluye una combinación de validaciones de datos y lógica de negocio para gestionar el inicio de sesión.
+
+![image](https://github.com/user-attachments/assets/e92455bc-0ae8-4478-831a-22a58c7a1ed0)
+
+A continuación, explicaremos cada uno de sus métodos.
+
+**`txtUsuarioFocusLost:`**
+
+Comprueba si el campo de texto txtUsuario está vacío al perder el foco. Si está vacío, muestra un indicador visual (lblObligatorio1) para indicar que es un campo obligatorio.
+
+```java
+    private void txtUsuarioFocusLost(java.awt.event.FocusEvent evt) {                                     
+        // TODO add your handling code here:
+        if(txtUsuario.getText().trim().isEmpty()){
+            lblObligatorio1.setVisible(true);
+        }else{
+            lblObligatorio1.setVisible(false);
+        }
+    }
+```
+
+**`txtUsuarioActionPerformed`**
+
+Este evento se activa cuando el usuario presiona Enter mientras está en el campo de texto.
+
+```java
+    private void txtUsuarioActionPerformed(java.awt.event.ActionEvent evt) {                                           
+        //leerArchivo();
+    }                                          
+```                               
+**`btnIngreso`**
+
+Este es el método principal para gestionar el inicio de sesión. Obtiene los valores ingresados por el usuario (correo, contraseña y tipoUsuario).
+- Validaciones: - 
+- Que los campos no estén vacíos.
+- El formato del correo sea válido.
+- La contraseña cumpla con los requisitos mínimos (al menos 6 caracteres).
+- Que el tipo de usuario sea válido.
+- Conexión a la base de datos: -
+- Consulta en la base de datos si existe un usuario con las credenciales proporcionadas.
+- Si las credenciales coinciden:
+- Redirige a la vista correspondiente según el tipo de usuario (Profesor, Administrador o Alumno).
+- Si no hay coincidencia, muestra un mensaje de error.
+
+```java
+    private void btnIngresoActionPerformed(java.awt.event.ActionEvent evt) {                                           
+        // Obtener los valores de los campos
+    String correo = txtUsuario.getText();
+    String contrasena = new String(txtContraseña.getPassword());
+    String tipoUsuario = (String) cmbTipoUsuario.getSelectedItem();
+
+    // Validar campos no vacíos
+    if (!ValidacionUsuario.camposNoVacios(correo, contrasena)) {
+        JOptionPane.showMessageDialog(this, "El correo y la contraseña no pueden estar vacíos.");
+        return;
+    }
+
+    // Validar formato de correo
+    if (!ValidacionUsuario.valCorreo(correo)) {
+        JOptionPane.showMessageDialog(this, "El correo electrónico no tiene un formato válido.");
+        return;
+    }
+
+    // Validar contraseña
+    if (!ValidacionUsuario.valContraseña(contrasena)) {
+        JOptionPane.showMessageDialog(this, "La contraseña debe tener al menos 6 caracteres.");
+        return;
+    }
+
+    // Validar tipo de usuario
+    if (!ValidacionUsuario.tipoUsuarioValido(tipoUsuario)) {
+        JOptionPane.showMessageDialog(this, "Por favor, selecciona un tipo de usuario.");
+        return;
+    }
+
+    Connection con = null;
+    PreparedStatement stmt = null;
+    ResultSet rs = null;
+
+    try {
+        con = (Connection) ConexionDB.conectar();
+        if (con == null) {
+            JOptionPane.showMessageDialog(this, "No se pudo establecer conexión con la base de datos.");
+            return;
+        }
+
+        String sql = "SELECT * FROM usuarios WHERE correo = ? AND contrasena = ? AND tipo_usuario = ?";
+        stmt = con.prepareStatement(sql);
+        stmt.setString(1, correo);
+        stmt.setString(2, contrasena);
+        stmt.setString(3, tipoUsuario);
+
+        rs = stmt.executeQuery();
+        
+if (rs.next()) {
+    switch (tipoUsuario) {
+        case "Profesor" -> {
+            // Obtener el ID del usuario logueado
+            int idUsuario = rs.getInt("id");
+
+            // Consultar el ID del profesor asociado a este usuario
+            int idProfesor = getIdProfesor(idUsuario);
+
+            if (idProfesor != -1) {
+                // Abrir la vista del horario del profesor
+                VPPaginaPrincipalProf profesor = new VPPaginaPrincipalProf();
+            profesor.setVisible(true);
+            this.dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "No se encontró un profesor asociado a este usuario.");
+            }
+        }
+        case "Administrador" -> {
+            VAdmPaginaPrincipalAdmin admin = new VAdmPaginaPrincipalAdmin();
+            admin.setVisible(true);
+            this.dispose();
+        }
+        case "Alumno" -> {
+            VAlPaginaPrincipalAlumno alumno = new VAlPaginaPrincipalAlumno();
+            alumno.setVisible(true);
+            this.dispose();
+        }
+        default -> JOptionPane.showMessageDialog(this, "Tipo de usuario no reconocido.");
+    }
+} else {
+    JOptionPane.showMessageDialog(this, "Correo o contraseña incorrectos.");
+}
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Error al iniciar sesión: " + e.getMessage());
+    } finally {
+        // Cerrar recursos
+        try {
+            if (rs != null) rs.close();
+            if (stmt != null) stmt.close();
+            if (con != null) ConexionDB.cerrarConexion((java.sql.Connection) con);
+        } catch (SQLException ex) {
+            System.out.println("Error al cerrar recursos: " + ex.getMessage());
+        }
+    }
+    }                                          
+```
+
+**`txtContraseñaFocusLost`**
+
+Valida la contraseña. Si no cumple con los criterios, muestra un mensaje de advertencia visual.
+
+```java
+    private void txtContraseñaFocusLost(java.awt.event.FocusEvent evt) {                                        
+        // TODO add your handling code here:
+        if(val.valContraseña(new String(txtContraseña.getPassword()))){
+            lblObligatorio2.setVisible(false);
+        }else{
+            lblObligatorio2.setVisible(true);
+        }
+    }
+```
+
+**`btnUnir1ActionPerformed`**
+
+Abre la ventana de registro para crear un nuevo usuario (NuevoUsuario).
+
+```java
+    private void btnUnir1ActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        NuevoUsuario ventanaRegistro = new NuevoUsuario();
+        ventanaRegistro.setVisible(true);
+    }                                        
+```
+
+**`lblOjo1`**
+
+Alternan la visibilidad de los caracteres en el campo de contraseña entre ocultos (*) y visibles, usando la variable contraseñaVisible.
+                               
+```java
+    private void lbOjo1MouseClicked(java.awt.event.MouseEvent evt) {                                    
+        // TODO add your handling code here:
+
+        if (contraseñaVisible) {
+            txtContraseña.setEchoChar('*');
+        } else {
+            txtContraseña.setEchoChar((char) 0);
+        }
+        contraseñaVisible = !contraseñaVisible;
+    }
+```
+
+**`getIdProfesor`**
+
+Este método consulta el ID del profesor asociado a un usuario en la base de datos.
+Si encuentra un registro, retorna el ID del profesor. Si no, devuelve -1.
+
+```java
+/**
+ * Obtiene el ID del profesor asociado al usuario logueado.
+ * @param idUsuario El ID del usuario logueado.
+ * @return El ID del profesor, o -1 si no se encuentra.
+ */
+private int getIdProfesor(int idUsuario) {
+    Connection con = null;
+    PreparedStatement stmt = null;
+    ResultSet rs = null;
+
+    try {
+        con = ConexionDB.conectar();
+        String query = "SELECT id FROM profesores WHERE id_usuario = ?";
+        stmt = con.prepareStatement(query);
+        stmt.setInt(1, idUsuario);
+
+        rs = stmt.executeQuery();
+        if (rs.next()) {
+            return rs.getInt("id");
+        }
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Error al obtener el ID del profesor: " + e.getMessage());
+    } finally {
+        try {
+            if (rs != null) rs.close();
+            if (stmt != null) stmt.close();
+            if (con != null) ConexionDB.cerrarConexion(con);
+        } catch (SQLException ex) {
+            System.out.println("Error al cerrar recursos: " + ex.getMessage());
+        }
+    }
+    return -1; // Retorna -1 si no se encuentra el profesor
+}
+```
