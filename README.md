@@ -1428,8 +1428,7 @@ Agrega un nuevo usuario a la base de datos validando los datos ingresados (como 
 ```
                                         
 **`btnModificarActionPerformed`**
-A
-ctualiza los datos de un usuario seleccionado en la tabla, basándose en el nombre de usuario anterior como referencia. También valida los campos antes de proceder con la actualización.
+Actualiza los datos de un usuario seleccionado en la tabla, basándose en el nombre de usuario anterior como referencia. También valida los campos antes de proceder con la actualización.
 
 ```java
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {                                             
@@ -1630,4 +1629,382 @@ private void actualizarPaginacion() {
     int totalPaginas = (int) Math.ceil((double) totalUsuarios / usuariosPorPagina);
     btnSiguiente.setEnabled(paginaActual < totalPaginas);
 }
+```
+
+
+### RegistroAlumno
+
+![image](https://github.com/user-attachments/assets/252a8df3-9440-4306-aa90-e39d64530023)
+
+**`btnVolverActionPerformed`**
+
+Cierra la ventana actual utilizando el método dispose().
+
+```java
+    private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        // TODO add your handling code here:
+        this.dispose();
+    }                                         
+```
+
+**`btnAñadirActionPerformed`**
+
+Valida los datos de entrada del formulario (nombre, correo, teléfono, género, etc.), asegura que cumplen con los formatos requeridos, y los inserta en la base de datos como un nuevo alumno. Después, limpia los campos del formulario y actualiza la tabla de alumnos.
+
+```java
+    private void btnAñadirActionPerformed(java.awt.event.ActionEvent evt) {                                          
+     // Validar si hay un usuario seleccionado
+        String selectedItem = (String) cmbUsuario.getSelectedItem();
+        if (selectedItem == null || selectedItem.equals("Seleccionar Usuario")) {
+            JOptionPane.showMessageDialog(this, "Por favor seleccione un usuario válido.");
+            return;
+        }
+
+        try {
+            // Extraer el ID del usuario desde el ComboBox
+            int idUsuario = Integer.parseInt(selectedItem.split(" - ")[0].replace("A", "").trim());
+
+            // Obtener otros datos del formulario
+            String nombre = txtNombreAlumno.getText().trim();
+            String apellidoP = txtApellidoP.getText().trim();
+            String apellidoM = txtApellidoM.getText().trim();
+            String numeroControl = txtNumControl.getText().trim();
+            String correo = txtCorreo.getText().trim();
+            String telefono = txtNumTelefono.getText().trim();
+            String genero = (String) cmbGenero.getSelectedItem();
+
+            // Validar campos obligatorios
+            if (nombre.isEmpty() || apellidoP.isEmpty() || numeroControl.isEmpty() || correo.isEmpty() || telefono.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Por favor complete todos los campos obligatorios.");
+                return;
+            }
+
+            // Validar formato de correo electrónico
+            if (!correo.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+                JOptionPane.showMessageDialog(this, "Por favor ingrese un correo electrónico válido.");
+                return;
+            }
+
+            // Validar formato de teléfono
+            if (!telefono.matches("^\\d{10}$")) {
+                JOptionPane.showMessageDialog(this, "Por favor ingrese un teléfono válido de 10 dígitos.");
+                return;
+            }
+
+            // Validar género
+            if (genero.equals("Género")) {
+                JOptionPane.showMessageDialog(this, "Por favor seleccione un género.");
+                return;
+            }
+
+            // Insertar datos en la base de datos
+            try (Connection conn = ConexionDB.getConnection()) {
+                String query = "INSERT INTO alumnos (id_usuario, nombre, apellido_paterno, apellido_materno, numero_control, correo, telefono, genero) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                try (PreparedStatement pst = conn.prepareStatement(query)) {
+                    pst.setInt(1, idUsuario);
+                    pst.setString(2, nombre);
+                    pst.setString(3, apellidoP);
+                    pst.setString(4, apellidoM);
+                    pst.setString(5, numeroControl);
+                    pst.setString(6, correo);
+                    pst.setString(7, telefono);
+                    pst.setString(8, genero);
+                    pst.executeUpdate();
+                }
+                JOptionPane.showMessageDialog(this, "Alumno añadido exitosamente.");
+                limpiarCampos();
+                cargarTabla(); // Actualizar la tabla después de añadir
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Error al añadir el alumno: " + ex.getMessage());
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Error al procesar el ID del usuario seleccionado. Asegúrese de que el formato sea válido.");
+        }
+    }
+```                                        
+
+**`btnEliminarActionPerformed`**
+Elimina un registro de la base de datos correspondiente al alumno seleccionado en la tabla. Luego, actualiza la tabla para reflejar los cambios.
+
+```java
+private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {                                            
+  int selectedRow = jTable1.getSelectedRow();
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "Por favor seleccione un alumno de la tabla.");
+        return;
+    }
+
+    int alumnoId = (int) jTable1.getValueAt(selectedRow, 0); // Obtiene el ID del alumno seleccionado
+
+    try (Connection conn = ConexionDB.getConnection()) {
+        String query = "DELETE FROM alumnos WHERE id = ?";
+        try (PreparedStatement pst = conn.prepareStatement(query)) {
+            pst.setInt(1, alumnoId);
+            int rowsAffected = pst.executeUpdate();
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(this, "Alumno eliminado exitosamente.");
+                cargarTabla(); // Recargar la tabla después de la eliminación
+            } else {
+                JOptionPane.showMessageDialog(this, "No se pudo eliminar el alumno. Verifique la selección.");
+            }
+        }
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(this, "Error al eliminar el alumno: " + ex.getMessage());
+    }
+
+    }
+```
+
+**`jTable1MouseClicked`**
+
+Carga los datos del alumno seleccionado en la tabla hacia los campos del formulario, obteniéndolos de la base de datos según su número de control.
+
+```java
+    private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {                                     
+   int row = jTable1.getSelectedRow();
+    if (row != -1) { 
+        String numeroControl = String.valueOf(jTable1.getValueAt(row, 4)); 
+        try (Connection conn = ConexionDB.getConnection()) {
+            String query = "SELECT nombre, apellido_paterno, apellido_materno, correo, telefono, genero FROM alumnos WHERE numero_control = ?";
+            try (PreparedStatement pst = conn.prepareStatement(query)) {
+                pst.setString(1, numeroControl);
+                try (ResultSet rs = pst.executeQuery()) {
+                    if (rs.next()) {
+                        txtNombreAlumno.setText(rs.getString("nombre"));
+                        txtApellidoP.setText(rs.getString("apellido_paterno"));
+                        txtApellidoM.setText(rs.getString("apellido_materno"));
+                        txtCorreo.setText(rs.getString("correo"));
+                        txtNumTelefono.setText(rs.getString("telefono"));
+                        cmbGenero.setSelectedItem(rs.getString("genero"));
+                        txtNumControl.setText(numeroControl);
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al cargar los datos del alumno: " + ex.getMessage());
+        }
+    }
+    }
+```
+
+**`btnModificar1ActionPerformed`**
+
+Valida los datos del formulario y actualiza en la base de datos los datos del alumno seleccionado. Luego, limpia los campos y actualiza la tabla.
+
+```java
+    private void btnModificar1ActionPerformed(java.awt.event.ActionEvent evt) {                                              
+         // Validar si hay un alumno seleccionado en la tabla
+    int selectedRow = jTable1.getSelectedRow();
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, "Por favor seleccione un alumno de la tabla para modificar.");
+        return;
+    }
+
+    try {
+        // Obtener el ID del alumno seleccionado desde la tabla
+        int alumnoId = (int) jTable1.getValueAt(selectedRow, 0);
+
+        // Obtener los datos del formulario
+        String nombre = txtNombreAlumno.getText().trim();
+        String apellidoP = txtApellidoP.getText().trim();
+        String apellidoM = txtApellidoM.getText().trim();
+        String numeroControl = txtNumControl.getText().trim();
+        String correo = txtCorreo.getText().trim();
+        String telefono = txtNumTelefono.getText().trim();
+        String genero = (String) cmbGenero.getSelectedItem();
+
+        // Validar campos obligatorios
+        if (nombre.isEmpty() || apellidoP.isEmpty() || numeroControl.isEmpty() || correo.isEmpty() || telefono.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor complete todos los campos obligatorios.");
+            return;
+        }
+
+        // Validar formato de correo electrónico
+        if (!correo.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+            JOptionPane.showMessageDialog(this, "Por favor ingrese un correo electrónico válido.");
+            return;
+        }
+
+        // Validar formato de teléfono
+        if (!telefono.matches("^\\d{10}$")) {
+            JOptionPane.showMessageDialog(this, "Por favor ingrese un teléfono válido de 10 dígitos.");
+            return;
+        }
+
+        // Validar género
+        if (genero.equals("Género")) {
+            JOptionPane.showMessageDialog(this, "Por favor seleccione un género.");
+            return;
+        }
+
+        // Actualizar los datos del alumno en la base de datos
+        try (Connection conn = ConexionDB.getConnection()) {
+            String query = "UPDATE alumnos SET nombre = ?, apellido_paterno = ?, apellido_materno = ?, numero_control = ?, correo = ?, telefono = ?, genero = ? WHERE id = ?";
+            try (PreparedStatement pst = conn.prepareStatement(query)) {
+                pst.setString(1, nombre);
+                pst.setString(2, apellidoP);
+                pst.setString(3, apellidoM);
+                pst.setString(4, numeroControl);
+                pst.setString(5, correo);
+                pst.setString(6, telefono);
+                pst.setString(7, genero);
+                pst.setInt(8, alumnoId);
+                pst.executeUpdate();
+            }
+
+            JOptionPane.showMessageDialog(this, "Alumno modificado exitosamente.");
+            limpiarCampos();
+            cargarTabla(); // Actualizar la tabla después de modificar
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al modificar el alumno: " + ex.getMessage());
+        }
+    } catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "Error al procesar el ID del alumno. Asegúrese de que el formato sea válido.");
+    }
+      
+    }                                             
+```
+
+**`cmbUsuarioActionPerformed`**
+
+Al seleccionar un usuario en el ComboBox, consulta sus datos en la base de datos y los carga en los campos del formulario. Si no se selecciona un usuario válido, limpia los campos.
+
+```java
+    private void cmbUsuarioActionPerformed(java.awt.event.ActionEvent evt) {                                           
+  // Validar si hay un usuario seleccionado
+   /* String selectedUser = (String) cmbUsuario.getSelectedItem();
+    if (selectedUser != null && !selectedUser.equals("Seleccionar Usuario")) {
+        try {
+            // Extraer el ID del usuario desde el ComboBox
+            int idUsuario = Integer.parseInt(selectedUser.split(" - ")[0].trim());
+
+            // Consultar los datos del usuario en la base de datos
+            try (Connection conn = ConexionDB.getConnection()) {
+                String query = "SELECT nombre, apellidos, correo, telefono FROM usuarios WHERE id = ?";
+                try (PreparedStatement pst = conn.prepareStatement(query)) {
+                    pst.setInt(1, idUsuario);
+                    try (ResultSet rs = pst.executeQuery()) {
+                        if (rs.next()) {
+                            // Rellenar los campos del formulario con los datos del usuario
+                            txtNombreAlumno.setText(rs.getString("nombre"));
+                            txtApellidoP.setText(rs.getString("apellido_paterno"));
+                            txtApellidoM.setText(rs.getString("apellido_materno"));
+                            txtCorreo.setText(rs.getString("correo"));
+                            txtNumTelefono.setText(rs.getString("telefono"));
+                        } else {
+                            JOptionPane.showMessageDialog(this, "No se encontraron datos para el usuario seleccionado.");
+                        }
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al cargar los datos del usuario: " + ex.getMessage());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Error al procesar el ID del usuario seleccionado. Verifique el formato.");
+        }
+    } else {
+        // Limpiar los campos si no hay usuario seleccionado
+        limpiarCampos();
+    }*/
+      // Validar que haya un usuario seleccionado
+String selectedUser = (String) cmbUsuario.getSelectedItem();
+    if (selectedUser != null && !selectedUser.equals("Seleccionar Usuario")) {
+     
+            // Extraer el ID del usuario desde el ComboBox
+            int idUsuario = Integer.parseInt(selectedUser.split(" - ")[0].trim());
+
+
+        // Consultar los datos del usuario seleccionado
+        try (Connection conn = ConexionDB.getConnection()) {
+            String query = "SELECT nombre, apellidos, correo FROM usuarios WHERE id = ?";
+            try (PreparedStatement pst = conn.prepareStatement(query)) {
+                pst.setInt(1, idUsuario);
+                try (ResultSet rs = pst.executeQuery()) {
+                    if (rs.next()) {
+                        // Dividir los apellidos y llenar los campos correspondientes
+                        String[] apellidos = rs.getString("apellidos").split(" ");
+                        txtNombreAlumno.setText(rs.getString("nombre"));
+                        txtApellidoP.setText(apellidos.length > 0 ? apellidos[0] : "");
+                        txtApellidoM.setText(apellidos.length > 1 ? apellidos[1] : "");
+                            txtCorreo.setText(rs.getString("correo"));
+                           
+                    }
+                }
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al cargar datos del usuario: " + ex.getMessage());
+        }
+    }
+    }                                          
+```
+
+**`cargarTabla`**
+
+Recupera los datos de todos los alumnos desde la base de datos y los carga en la tabla.
+
+```java                                      
+private void cargarTabla() {
+        // Método para cargar los datos de los alumnos en la tabla
+        try (Connection conn = ConexionDB.getConnection()) {
+            String query = "SELECT id, nombre, apellido_paterno, apellido_materno, numero_control, correo, telefono, genero FROM alumnos";
+            try (PreparedStatement pst = conn.prepareStatement(query); ResultSet rs = pst.executeQuery()) {
+                DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+                model.setRowCount(0); // Limpiar la tabla antes de cargar los nuevos datos
+                while (rs.next()) {
+                    Object[] row = new Object[8];
+                    row[0] = rs.getInt("id");
+                    row[1] = rs.getString("nombre");
+                    row[2] = rs.getString("apellido_paterno");
+                    row[3] = rs.getString("apellido_materno");
+                    row[4] = rs.getString("numero_control");
+                    row[5] = rs.getString("correo");
+                    row[6] = rs.getString("telefono");
+                    row[7] = rs.getString("genero");
+                    model.addRow(row);
+                }
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al cargar los datos: " + ex.getMessage());
+        }
+    }
+```
+
+**`limpiarCampos`**
+
+Limpia todos los campos del formulario y restablece el ComboBox de género al valor predeterminado.
+
+```java
+    private void limpiarCampos() {
+        // Limpiar los campos después de realizar una operación (añadir, modificar)
+        txtNombreAlumno.setText("");
+        txtApellidoP.setText("");
+        txtApellidoM.setText("");
+        txtNumControl.setText("");
+        txtCorreo.setText("");
+        txtNumTelefono.setText("");
+        cmbGenero.setSelectedIndex(0);
+    }
+```
+**`initUserComboBox`**
+
+Carga en el ComboBox los usuarios de tipo "Alumno" desde la base de datos, mostrando su ID y nombre completo.
+
+```java
+   private void initUserComboBox() {
+        try (Connection conn = ConexionDB.getConnection()) {
+            String query = "SELECT id, nombre, apellidos FROM usuarios WHERE tipo_usuario = 'Alumno'";
+            try (PreparedStatement pst = conn.prepareStatement(query);
+                 ResultSet rs = pst.executeQuery()) {
+                cmbUsuario.removeAllItems();
+                cmbUsuario.addItem("Seleccionar Usuario");
+                while (rs.next()) {
+                    int idUsuario = rs.getInt("id");
+                    String nombreCompleto = rs.getString("nombre") + " " + rs.getString("apellidos");
+                    cmbUsuario.addItem(idUsuario + " - " + nombreCompleto);
+                }
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al cargar usuarios: " + ex.getMessage());
+        }
+        }
 ```
