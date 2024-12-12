@@ -2635,3 +2635,257 @@ Cierra la sesión actual y abre la ventana de inicio de sesión (Login). Además
         this.dispose();
     }                               
 ```
+
+
+##VPNuevoGrupo
+
+![image](https://github.com/user-attachments/assets/1157b7d6-3e91-4509-b658-6962cd146936)
+
+**`btnVolverActionPerformed`**
+
+Cierra la ventana actual (this.dispose()), permitiendo al usuario regresar a la ventana previa.
+
+```java
+   private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        this.dispose();
+    }                                         
+```
+
+**`btnEliminarGrupoActionPerformed`**
+
+Permite eliminar un grupo seleccionado de una tabla (jTable1). Verifica que haya una fila seleccionada, muestra un mensaje de error si no la hay, y elimina la fila seleccionada del modelo de la tabla.
+
+```java
+    private void btnEliminarGrupoActionPerformed(java.awt.event.ActionEvent evt) {                                                 
+// Verificar que haya una fila seleccionada
+    int filaSeleccionada = jTable1.getSelectedRow();
+    if (filaSeleccionada == -1) {
+        JOptionPane.showMessageDialog(this, "Debe seleccionar una fila para eliminar.");
+        return;
+    }
+    // Eliminar la fila seleccionada del modelo de la tabla
+    DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+    model.removeRow(filaSeleccionada);
+    }                                                
+
+    private void btnCrearActionPerformed(java.awt.event.ActionEvent evt) {                                         
+    String nombreGrupo = txtNombreGrupo.getText().trim(); // Asegúrate de no convertir a entero
+
+    // Validar que el nombre del grupo no esté vacío
+    if (nombreGrupo.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "El nombre del grupo no puede estar vacío.");
+        return;
+    }
+
+    // Validar formato del grupo (opcional: solo letras y números)
+    if (!nombreGrupo.matches("^[A-Za-z0-9]+$")) {
+        JOptionPane.showMessageDialog(this, "El nombre del grupo solo puede contener letras y números.");
+        return;
+    }
+
+    String selectedProfesor = (String) cmbProfesor.getSelectedItem();
+
+    // Validar que se haya seleccionado un profesor
+    if ("Seleccionar Profesor".equals(selectedProfesor)) {
+        JOptionPane.showMessageDialog(this, "Debe seleccionar un profesor.");
+        return;
+    }
+
+    // Obtener el ID del profesor seleccionado
+    String[] partsProfesor = selectedProfesor.split(" - ");
+    int idProfesor = Integer.parseInt(partsProfesor[0]);
+
+    try (Connection con = ConexionDB.getConnection()) {
+        // Insertar el grupo en la tabla "grupos"
+        String queryGrupo = "INSERT INTO grupos (nombre_grupo, id_profesor) VALUES (?, ?) RETURNING id";
+        PreparedStatement psGrupo = con.prepareStatement(queryGrupo);
+        psGrupo.setString(1, nombreGrupo); // Insertar el nombre del grupo como texto
+        psGrupo.setInt(2, idProfesor);    // ID del profesor
+
+        ResultSet rsGrupo = psGrupo.executeQuery();
+
+        if (rsGrupo.next()) {
+            int idGrupo = rsGrupo.getInt("id"); // ID del grupo recién creado
+
+            // Validar conflicto de horarios antes de insertar materias
+            for (int i = 0; i < jTable1.getRowCount(); i++) {
+                int idMateria = Integer.parseInt(jTable1.getValueAt(i, 0).toString()); // ID de la materia
+                if (existeConflictoHorario(idMateria, idGrupo)) {
+                    JOptionPane.showMessageDialog(this, "Conflicto de horarios detectado para la materia seleccionada.");
+                    return;
+                }
+            }
+
+            // Insertar los detalles seleccionados en la tabla "grupos_materias"
+            insertarMateriasSeleccionadas(con, idGrupo);
+
+            JOptionPane.showMessageDialog(this, "Grupo creado correctamente con ID: " + idGrupo);
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al crear el grupo: " + e.getMessage());
+    }
+} 
+```
+
+```java
+// Método auxiliar para validar conflictos de horarios
+private boolean existeConflictoHorario(int idMateria, int idGrupo) {
+    try (Connection con = ConexionDB.getConnection()) {
+        String query = "SELECT COUNT(*) FROM grupos_materias gm " +
+                       "JOIN materias m ON gm.id_materia = m.id " +
+                       "WHERE gm.id_grupo = ? AND m.id = ?";
+        PreparedStatement ps = con.prepareStatement(query);
+        ps.setInt(1, idGrupo);
+        ps.setInt(2, idMateria);
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next() && rs.getInt(1) > 0) {
+            return true; // Hay conflicto
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al verificar conflictos de horarios: " + e.getMessage());
+    }
+    return false;
+}
+```
+
+**`existeConflictoHorario`**
+
+Verifica si existe un conflicto de horarios entre una materia y un grupo. Consulta la base de datos para determinar si la materia especificada ya está asociada al grupo. Devuelve true si hay un conflicto y false en caso contrario. Si ocurre un error durante la verificación, muestra un mensaje con detalles del problema.
+
+```java
+// Método auxiliar para insertar materias seleccionadas
+private void insertarMateriasSeleccionadas(Connection con, int idGrupo) {
+    try {
+        for (int i = 0; i < jTable1.getRowCount(); i++) {
+            int idMateria = Integer.parseInt(jTable1.getValueAt(i, 0).toString()); // ID de la materia
+
+            String query = "INSERT INTO grupos_materias (id_grupo, id_materia) VALUES (?, ?)";
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setInt(1, idGrupo);
+            ps.setInt(2, idMateria);
+            ps.executeUpdate();
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al insertar materias en el grupo: " + e.getMessage());
+    }
+    }                                        
+```
+
+**`btnAnadirActionPerformed`**
+
+Añade una materia seleccionada desde un JComboBox a la tabla de materias del grupo (jTable1). Verifica que la materia no esté duplicada en la tabla y recupera detalles de la materia (días, hora de inicio y fin) desde la base de datos para mostrarlos en la tabla.
+
+```java
+    private void btnAnadirActionPerformed(java.awt.event.ActionEvent evt) {                                          
+String selectedMateria = (String) cmbMateria.getSelectedItem();
+
+    if ("Seleccionar Materia".equals(selectedMateria)) {
+        JOptionPane.showMessageDialog(this, "Debe seleccionar una materia.");
+        return;
+    }
+
+    String[] parts = selectedMateria.split(" - ");
+    int idMateria = Integer.parseInt(parts[0]);
+    String nombreMateria = parts[1];
+
+    try (Connection con = ConexionDB.getConnection()) {
+        // Validar que la materia no esté duplicada en la tabla
+        javax.swing.table.DefaultTableModel model = (javax.swing.table.DefaultTableModel) jTable1.getModel();
+        for (int i = 0; i < model.getRowCount(); i++) {
+            int idExistente = Integer.parseInt(model.getValueAt(i, 0).toString()); // Comparar ID de materia
+            if (idExistente == idMateria) {
+                JOptionPane.showMessageDialog(this, "La materia con ID '" + idMateria + "' ya está registrada en la tabla.");
+                return;
+            }
+        }
+
+        // Obtener días, hora inicio y hora fin de la materia seleccionada
+        String query = "SELECT dia_semana, hora_inicio, hora_fin FROM materias WHERE id = ?";
+        PreparedStatement ps = con.prepareStatement(query);
+        ps.setInt(1, idMateria);
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            String dias = rs.getString("dia_semana");
+            String horaInicio = rs.getString("hora_inicio");
+            String horaFin = rs.getString("hora_fin");
+
+            // Añadir la materia al JTable con los datos recuperados
+            model.addRow(new Object[]{idMateria, nombreMateria, dias, horaInicio, horaFin});
+        } else {
+            JOptionPane.showMessageDialog(this, "No se encontraron detalles de la materia seleccionada.");
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al obtener detalles de la materia: " + e.getMessage());
+    }
+    }                                         
+```
+
+**`inicializarTabla`**
+
+Inicializa la tabla (jTable1) con las columnas necesarias para mostrar la información de las materias, como ID, nombre, días, hora de inicio y hora de fin.
+
+```java                                      
+// Método para cargar las materias existentes en el JComboBox
+    private void inicializarTabla() {
+    jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        new Object[][]{},
+        new String[]{"ID MATERIA", "MATERIA", "DIAS", "HORA INICIO", "HORA FIN"}
+    ));
+}
+```
+
+**`cargarProfesores`**
+
+Carga los profesores disponibles desde la base de datos y los agrega al JComboBox correspondiente (cmbProfesor). Incluye una opción inicial "Seleccionar Profesor" y muestra un mensaje de error si ocurre algún problema al cargar los datos.
+
+```java
+    // Método para cargar los profesores existentes en el ComboBox
+private void cargarProfesores() {
+    DefaultComboBoxModel<String> modeloProfesores = new DefaultComboBoxModel<>();
+    cmbProfesor.setModel(modeloProfesores);
+    modeloProfesores.addElement("Seleccionar Profesor"); // Primera opción
+
+    try (Connection con = ConexionDB.getConnection()) {
+        String query = "SELECT id, nombre FROM profesores";
+        Statement stmt = con.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+
+        while (rs.next()) {
+            int id = rs.getInt("id");
+            String nombreProfesor = rs.getString("nombre");
+            modeloProfesores.addElement(id + " - " + nombreProfesor);
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al cargar profesores: " + e.getMessage());
+    }
+}
+```
+
+**`cargarMaterias`**
+
+Carga las materias existentes desde la base de datos y las agrega al JComboBox de materias (cmbMateria). Similar al método anterior, incluye una opción inicial "Seleccionar Materia" y gestiona errores en caso de fallos en la conexión o consulta.
+
+```java
+// Método para cargar las materias existentes en el ComboBox
+private void cargarMaterias() {
+    modeloMaterias = new DefaultComboBoxModel<>();
+    cmbMateria.setModel(modeloMaterias);
+    modeloMaterias.addElement("Seleccionar Materia"); // Primera opción
+
+    try (Connection con = ConexionDB.getConnection()) {
+        String query = "SELECT id, nombre_materia FROM materias";
+        Statement stmt = con.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+
+        while (rs.next()) {
+            int id = rs.getInt("id");
+            String nombreMateria = rs.getString("nombre_materia");
+            modeloMaterias.addElement(id + " - " + nombreMateria);
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(this, "Error al cargar materias: " + e.getMessage());
+    }
+}
+```
