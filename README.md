@@ -637,4 +637,155 @@ Es importante asegurarse de que la URL de la base de datos y tanto el usuario co
 ```
 
 # CONTROLADOR
+
+##RegistroUsuario
+Esta clase se encarga de registrar un nuevo usuario en la base de datos. Contiene un método llamado registrarUsuario que recibe cuatro parámetros: nombreUsuario, correo, contrasena y tipoUsuario. Este método establece una conexión con la base de datos a través de la clase ConexionDB. Si la conexión es exitosa, prepara una sentencia SQL para insertar los datos del nuevo usuario en la tabla usuarios. Los valores de los parámetros se asignan a la consulta utilizando un PreparedStatement. Luego, ejecuta la consulta y, si se insertan filas correctamente, devuelve true, indicando que el registro fue exitoso. Si ocurre algún error durante el proceso, el método maneja la excepción SQLException y devuelve false, indicando que el registro falló.
+
+```java
+package CONTROL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import MODELO.ConexionDB;
+
+public class RegistroUsuario {
+    public boolean registrarUsuario(String nombreUsuario, String correo, String contrasena, String tipoUsuario) {
+        Connection conn = ConexionDB.conectar();
+        if (conn != null) {
+            String query = "INSERT INTO usuarios (nombre_usuario, correo, contrasena, tipo_usuario) VALUES (?, ?, ?, ?)";
+            try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+                // Setear los valores de los parámetros
+                pstmt.setString(1, nombreUsuario);
+                pstmt.setString(2, correo);
+                pstmt.setString(3, contrasena);
+                pstmt.setString(4, tipoUsuario);
+
+                // Ejecutar la consulta
+                int filasInsertadas = pstmt.executeUpdate();
+                if (filasInsertadas > 0) {
+                    return true;  // Usuario registrado exitosamente
+                }
+            } catch (SQLException ex) {
+                System.out.println("Error al insertar el usuario: " + ex.getMessage());
+            }
+        }
+        return false;
+    }
+}
+```
+
+##Validacion
+La clase Validacion tiene métodos para verificar diferentes aspectos relacionados con los datos de un usuario. Contiene métodos para validar el formato del correo electrónico (valCorreo), asegurando que siga una expresión regular básica para correos electrónicos. También valida que la contraseña tenga al menos 6 caracteres a través del método valContraseña. El método camposNoVacios verifica que tanto el correo como la contraseña no estén vacíos. Además, el método validarUsuario realiza una consulta en la base de datos para comprobar si las credenciales proporcionadas (usuario y contraseña) existen, retornando true si son válidas y false si no lo son. Este último método es esencial para la autenticación de usuarios en la aplicación.
+
+```java
+package CONTROL;
+
+import MODELO.ConexionDB;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class Validacion {
+
+    /**
+     * Valida si el correo electrónico ingresado tiene un formato correcto.
+     * @return `true` si el correo es válido, `false` en caso contrario.
+     */
+    public boolean valCorreo(String correo) {
+        // Expresión regular para verificar un formato básico de correo electrónico
+        String regex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zAOL]{2,7}$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(correo);
+        return matcher.matches();
+    }
+
+    /**
+     * Valida si la contraseña cumple con los requisitos mínimos (mínimo 6 caracteres)
+     * @return `true` si la contraseña es válida, `false` en caso contrario.
+     */
+    public boolean valContraseña(String contrasena) {
+        // La contraseña debe tener al menos 6 caracteres
+        if (contrasena.length() < 6) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Valida si el correo electrónico y la contraseña no están vacíos.
+     * @return `true` si ambos campos no están vacíos, `false` en caso contrario.
+     */
+    public boolean camposNoVacios(String correo, String contrasena) {
+        if (correo.trim().isEmpty() || contrasena.trim().isEmpty()) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Valida si el usuario y la contraseña ingresados existen en la base de datos
+     * y retorna el tipo de usuario (profesor, alumno, administrador).
+     * @return El tipo de usuario (profesor, alumno, administrador) si las credenciales son válidas,
+     *         `null` si no es válido.
+     */
+public boolean validarUsuario(String usuario, String contrasena) {
+    boolean esValido = false;
+    String sql = "SELECT * FROM usuarios WHERE nombre_usuario = ? AND contrasena = ?";
+
+    try (Connection conn = ConexionDB.getConnection();
+         PreparedStatement pst = conn.prepareStatement(sql)) {
+
+        // Establecer los parámetros de la consulta
+        pst.setString(1, usuario);
+        pst.setString(2, contrasena); // Asegúrate de usar un hash para la contraseña en una aplicación real
+
+        // Ejecutar la consulta
+        ResultSet rs = pst.executeQuery();
+        
+        // Si se encuentra un usuario con las credenciales proporcionadas, es válido
+        if (rs.next()) {
+            esValido = true;
+        }
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return esValido;
+}
+}
+```
+
+##ValidacionUsuario
+La clase ValidacionUsuario proporciona varios métodos estáticos para realizar validaciones relacionadas con los datos de un usuario. El método camposNoVacios verifica que los campos de correo y contraseña no estén vacíos. El método valCorreo valida que el formato del correo electrónico sea correcto utilizando una expresión regular. Por su parte, valContraseña asegura que la contraseña tenga al menos 6 caracteres. Finalmente, el método tipoUsuarioValido comprueba que el tipo de usuario no sea el valor predeterminado ("Tipo de usuario"). Estos métodos son útiles para asegurar que los datos proporcionados por los usuarios sean correctos antes de proceder con su registro o autenticación.
+
+```java
+package CONTROL;
+
+public class ValidacionUsuario {
+
+    // Validar que los campos no estén vacíos
+    public static boolean camposNoVacios(String correo, String contrasena) {
+        return !(correo.isEmpty() || contrasena.isEmpty());
+    }
+
+    // Validar formato de correo
+    public static boolean valCorreo(String correo) {
+        return correo.matches("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
+    }
+
+    // Validar que la contraseña tenga al menos 6 caracteres
+    public static boolean valContraseña(String contrasena) {
+        return contrasena.length() >= 6;
+    }
+
+    // Validar que el tipo de usuario sea válido
+    public static boolean tipoUsuarioValido(String tipoUsuario) {
+        return !tipoUsuario.equals("Tipo de usuario");
+    }
+}
+```
+
 # VISTA
