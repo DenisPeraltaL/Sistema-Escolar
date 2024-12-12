@@ -9,6 +9,9 @@ Peralta López Denis
 
 # 1.Descripción del proyecto.
 
+
+# 2.Instrucciones de instalación y configuración.
+
 ## Instalación del Proyecto en NetBeans
 1. Descarga del Proyecto:
 
@@ -16,11 +19,200 @@ Para comenzar, descarga el proyecto comprimido en formato ZIP desde el repositor
 
 ![image](https://github.com/user-attachments/assets/6c80ccbb-245d-42d9-9728-1e894f66d3c0)
 
+2. Importación del Proyecto en NetBeans:
 
-# 2.Instrucciones de instalación y configuración.
+Abre NetBeans y dirígete a la pestaña *File* en la barra de menú.
+Selecciona *Import Project* y luego haz clic en *From ZIP....*
+
+![Captura de pantalla 2024-11-02 233822](https://github.com/user-attachments/assets/eaf226c6-6ac3-4629-bb97-0b63cd512b5a)
+
+Aparecerá una ventana emergente. En el campo *ZIP File*, haz clic en *Browse* y localiza el archivo ZIP que descargaste.
+
+![image](https://github.com/user-attachments/assets/ff0e77e6-eb12-47db-a4e9-2fe20c431321)
+
+![image](https://github.com/user-attachments/assets/23244809-4a4d-4e68-aa29-be0d11f4a3a1)
+
+Finalmente haz clic en import.
+
+3. Limpieza y Construcción del Proyecto:
+
+Después de importar el proyecto, haz clic derecho sobre el nombre del proyecto en el panel de proyectos y selecciona *Clean and Build*.
+
+![image](https://github.com/user-attachments/assets/5f0840a3-6b40-4a2a-a636-7f8973f2be2d)
 
 
 # 3.Explicación del funcionamiento y la estructura de la base de datos.
+Antes de poner en funcionamiento nuestro proyecto, es necesario crear la base de datos en la que se guardaran todos los registros.
+1. Para ello, abriremos nuestra aplicación de pgAdmin4 que ya debemos tener previamente instalada.
+2. Despues buscaremos en la parte izquierda de nuestra pantalla donde diga `Databases`, daremos clic drecho sobre `Databases`, despues en `Create` y posteriormente en `Database...`
+
+![image](https://github.com/user-attachments/assets/f8bcd7a0-1d06-40d9-8e00-6bc06bad256e)
+
+Nos abrirá una ventana como la siguiente:
+
+![image](https://github.com/user-attachments/assets/07a29b60-766d-4766-8c07-bd50740fd794)
+
+en la que unicamente tenemos que poner el nobre de nuestra base de datos, en este caso será `hope`.
+
+y listo, habrá quedado creada nuestra base de datos.
+la podemos encontrar en `daabases` en la parte izquierda de nuestra pantalla, debemos dar clic sobre ella y hacer clic sobre el icono de `Query tool` ![image](https://github.com/user-attachments/assets/d3356f8e-2848-4e59-91fe-65974a3e6c98)  para conectarnos y poder trabajaar con nuestra base de datos.
+
+![image](https://github.com/user-attachments/assets/1352ad53-b621-4e06-97b3-4115d0e4a120)
+
+Posterior a ello, debemos copiar y pegar este código para la creación de las tablas.
+```sql
+BEGIN;
+CREATE TABLE IF NOT EXISTS public.alumnos
+(
+    id serial NOT NULL,
+    id_usuario integer NOT NULL,
+    nombre character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    apellido_paterno character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    apellido_materno character varying(50) COLLATE pg_catalog."default",
+    numero_control character varying(20) COLLATE pg_catalog."default" NOT NULL,
+    correo character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    telefono character varying(20) COLLATE pg_catalog."default",
+    genero character varying(20) COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT alumnos_pkey PRIMARY KEY (id),
+    CONSTRAINT alumnos_correo_key UNIQUE (correo),
+    CONSTRAINT alumnos_numero_control_key UNIQUE (numero_control)
+);
+
+CREATE TABLE IF NOT EXISTS public.grupos
+(
+    id serial NOT NULL,
+    nombre_grupo character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    id_profesor integer NOT NULL,
+    fecha_creacion timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT grupos_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS public.grupos_alumnos
+(
+    id serial NOT NULL,
+    id_grupo integer NOT NULL,
+    id_alumno integer NOT NULL,
+    fecha_asignacion timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT grupos_alumnos_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS public.grupos_materias
+(
+    id serial NOT NULL,
+    id_grupo integer NOT NULL,
+    id_materia integer NOT NULL,
+    CONSTRAINT grupos_materias_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS public.horarios_profesor
+(
+    id serial NOT NULL,
+    id_profesor integer NOT NULL,
+    materia character varying(100) COLLATE pg_catalog."default",
+    dia character varying(20) COLLATE pg_catalog."default",
+    hora_inicio time without time zone,
+    hora_fin time without time zone,
+    aula character varying(50) COLLATE pg_catalog."default",
+    CONSTRAINT horarios_profesor_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS public.materias
+(
+    id serial NOT NULL,
+    nombre_materia character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    creditos integer NOT NULL,
+    aula character varying(50) COLLATE pg_catalog."default",
+    semestre integer NOT NULL,
+    cupo integer NOT NULL,
+    id_profesor integer NOT NULL,
+    dia_semana character varying(50) COLLATE pg_catalog."default",
+    hora_inicio time without time zone,
+    hora_fin time without time zone,
+    CONSTRAINT materias_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS public.profesores
+(
+    id serial NOT NULL,
+    id_usuario integer NOT NULL,
+    nombre character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    apellido_paterno character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    apellido_materno character varying(50) COLLATE pg_catalog."default",
+    telefono character varying(20) COLLATE pg_catalog."default",
+    domicilio character varying(100) COLLATE pg_catalog."default",
+    cedula character varying(30) COLLATE pg_catalog."default",
+    CONSTRAINT profesores_pkey PRIMARY KEY (id),
+    CONSTRAINT profesores_cedula_key UNIQUE (cedula)
+);
+
+CREATE TABLE IF NOT EXISTS public.usuarios
+(
+    id serial NOT NULL,
+    nombre_usuario character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    nombre character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    apellidos character varying(50) COLLATE pg_catalog."default",
+    correo character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    contrasena character varying(255) COLLATE pg_catalog."default" NOT NULL,
+    tipo_usuario character varying(20) COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT usuarios_pkey PRIMARY KEY (id),
+    CONSTRAINT usuarios_correo_key UNIQUE (correo)
+);
+
+ALTER TABLE IF EXISTS public.alumnos
+    ADD CONSTRAINT alumnos_id_usuario_fkey FOREIGN KEY (id_usuario)
+    REFERENCES public.usuarios (id) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS public.grupos
+    ADD CONSTRAINT grupos_id_profesor_fkey FOREIGN KEY (id_profesor)
+    REFERENCES public.profesores (id) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS public.grupos_alumnos
+    ADD CONSTRAINT grupos_alumnos_id_alumno_fkey FOREIGN KEY (id_alumno)
+    REFERENCES public.alumnos (id) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS public.grupos_alumnos
+    ADD CONSTRAINT grupos_alumnos_id_grupo_fkey FOREIGN KEY (id_grupo)
+    REFERENCES public.grupos (id) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS public.grupos_materias
+    ADD CONSTRAINT grupos_materias_id_grupo_fkey FOREIGN KEY (id_grupo)
+    REFERENCES public.grupos (id) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS public.grupos_materias
+    ADD CONSTRAINT grupos_materias_id_materia_fkey FOREIGN KEY (id_materia)
+    REFERENCES public.materias (id) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS public.horarios_profesor
+    ADD CONSTRAINT horarios_profesor_id_profesor_fkey FOREIGN KEY (id_profesor)
+    REFERENCES public.profesores (id) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS public.materias
+    ADD CONSTRAINT fk_profesor FOREIGN KEY (id_profesor)
+    REFERENCES public.profesores (id) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE;
+
+ALTER TABLE IF EXISTS public.profesores
+    ADD CONSTRAINT profesores_id_usuario_fkey FOREIGN KEY (id_usuario)
+    REFERENCES public.usuarios (id) MATCH SIMPLE
+    ON UPDATE CASCADE
+    ON DELETE CASCADE;
+END;
+```
 
 
 # 4.Resumen de cada clase y sus responsabilidades.
