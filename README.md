@@ -2,12 +2,92 @@
 Proyecto final sobre sistema escolar
 **Equipo 14**
 
-Rodriguez Alavés Alejandro
+Rodriguez Alavez Alejandro
 
 Peralta López Denis
 
 
 # 1.Descripción del proyecto.
+
+Nuestro proyecto consiste en desarrollar un Sistema Escolar utilizando la arquitectura MVC (Modelo-Vista-Controlador). Este sistema busca facilitar la gestión de la información de alumnos, profesores, usuarios, grupos, materias y horarios. Además, permite la interacción entre los diferentes usuarios del sistema. El sistema también garantiza la seguridad de la información y la diferenciación de roles de usuarios.
+
+La estructura del proyecto está organizada de la siguiente manera:
+
+*1. Estructura MVC*
+
+-Modelo-
+
+La capa donde se define la lógica del sistem y la conexión a la base de datos. Contiene las clases que representan a los objetos clave del sistema, como Usuarios, Alumnos, Profesores, Grupos, Materias y Horarios y también se encarga de ejecutar consultas SQL para la gestión de la información almacenada en la base de datos PostgreSQL.
+Esta capa de modelo se comunica directamente con la base de datos (PostgreSQL) para realizar operaciones de consulta, inserción, actualización y eliminación de registros (CRUD).
+
+-Vista-
+
+Es la interfaz gráfica de usuario (GUI) que permite la interacción con el sistema. Aqui los usuarios pueden visualizar, ingresar y consultar información de manera sencilla e intuitiva. La vista está diseñada para ser fácil de usar y accesible, con formularios de entrada de datos, botones de acción y tablas de visualización de información.
+
+-Controlador-
+La capa intermediaria que gestiona la comunicación entre la Vista y el Modelo. Se encarga de procesar las solicitudes del usuario, invocar los métodos del modelo y actualizar la vista de acuerdo con la información obtenida. También se encarga de la validación de los formularios y la gestión de errores.
+
+
+2. Módulos del Proyecto
+
+1. Gestión de Usuarios (CRUD):
+- Crear, Leer, Actualizar y Eliminar usuarios.
+- Dos niveles de usuarios con permisos diferenciados: Administrador y Usuario Estándar.
+- Los administradores tienen acceso a todas las funciones, mientras que los usuarios estándares tienen permisos restringidos.
+- Validación de los campos de entrada de datos (por ejemplo, que no existan campos vacíos y que el correo sea válido).
+2. Gestión de Alumnos (CRUD):
+- Registro, consulta, modificación y eliminación de información de los alumnos.
+- Asignación de los alumnos a grupos específicos.
+- Los datos de los alumnos incluyen nombre, apellidos, número de control, correo electrónico, teléfono y género.
+
+2. Gestión de Profesores (CRUD):
+- Registro, consulta, modificación y eliminación de información de los profesores.
+- Los datos de los profesores incluyen nombre, apellidos, teléfono, domicilio y cédula profesional.
+
+3. Gestión de Grupos:
+- Creación de grupos asignados a un profesor responsable.
+- Asignación de alumnos a grupos.
+- Relación de los grupos con las materias que se imparten.
+
+4. Gestión de Materias (CRUD):
+- Registro, consulta, modificación y eliminación de información de las materias.
+- Asignación de las materias a grupos y profesores.
+- Definición de horarios de las materias, incluyendo día de la semana, hora de inicio y hora de fin.
+
+*Horarios de Profesores:*
+- Registro de los horarios en los que los profesores imparten clases.
+- Asignación de días y horas para cada materia en función del grupo asignado.
+
+*Autenticación y Seguridad:*
+-Sistema de autenticación para el acceso de usuarios con diferentes niveles de acceso.
+-Contraseñas cifradas para proteger la seguridad de los usuarios.
+-Control de sesión para evitar el acceso no autorizado.
+
+*Validación de Campos Requeridos:*
+-Todos los formularios de entrada de datos validan que no haya campos vacíos.
+-Validación de la longitud y formato de campos como el correo electrónico y la contraseña.
+
+
+3. Conexión a la Base de Datos
+
+El sistema está conectado a una base de datos PostgreSQL que almacena la información de usuarios, alumnos, profesores, grupos, materias y horarios. La estructura de la base de datos incluye las siguientes tablas:
+
+- Usuarios: Almacena información de los usuarios, incluyendo nombre de usuario, nombre completo, correo, contraseña y tipo de usuario.
+- Alumnos: Almacena información de los alumnos, incluyendo nombre, apellidos, correo, número de control, teléfono y género.
+- Profesores: Contiene la información de los profesores, como nombre, apellidos, teléfono, domicilio y cédula profesional.
+- Grupos: Almacena los grupos creados, con su respectivo nombre, fecha de creación y profesor asignado.
+- Materias: Almacena las materias registradas, con información sobre el crédito, semestre, aula y horario de la materia.
+- Horarios de Profesores: Define los horarios de las clases asignadas a cada profesor, especificando la materia, el día, la hora de inicio y la hora de fin.
+- Grupos-Alumnos: Relaciona a los alumnos con los grupos a los que pertenecen.
+- Grupos-Materias: Relaciona a los grupos con las materias que cursan.
+
+
+4. Validaciones de Campos Requeridos
+Para garantizar la integridad de los datos ingresados, se establecen validaciones en todos los formularios. Las principales validaciones son:
+
+- Campos obligatorios: Los campos esenciales, como nombre, correo y contraseña, deben completarse antes de enviar el formulario.
+- Validación de formato: Los campos de correo electrónico deben tener un formato correcto y las contraseñas deben cumplir con requisitos de longitud y complejidad.
+- Mensajes de error amigables: Si ocurre un error de validación, se muestra un mensaje de error claro para que el usuario sepa cómo corregir la información.
 
 
 # 2.Instrucciones de instalación y configuración.
