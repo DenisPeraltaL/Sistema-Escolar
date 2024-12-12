@@ -9,6 +9,13 @@ Peralta López Denis
 
 # 1.Descripción del proyecto.
 
+## Instalación del Proyecto en NetBeans
+1. Descarga del Proyecto:
+
+Para comenzar, descarga el proyecto comprimido en formato ZIP desde el repositorio.
+
+![image](https://github.com/user-attachments/assets/6c80ccbb-245d-42d9-9728-1e894f66d3c0)
+
 
 # 2.Instrucciones de instalación y configuración.
 
