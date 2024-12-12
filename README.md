@@ -1320,3 +1320,314 @@ private int getIdProfesor(int idUsuario) {
     return -1; // Retorna -1 si no se encuentra el profesor
 }
 ```
+
+
+### NuevoUsuario
+
+![image](https://github.com/user-attachments/assets/638fc5e0-4283-4eae-8071-e5acf1074d06)
+
+**`btnVolverActionPerformed`**
+
+Cierra la ventana actual del formulario al ejecutar this.dispose().
+
+```java
+   private void btnVolverActionPerformed(java.awt.event.ActionEvent evt) {                                          
+        // TODO add your handling code here:
+        this.dispose();
+    }                                         
+```
+
+**`btnEliminarActionPerformed`**
+
+Elimina un usuario de la base de datos en función del valor ingresado en el campo "nombreUsuario". Si el usuario es eliminado correctamente, se muestra un mensaje de confirmación y se recarga la tabla de usuarios.
+
+```java
+    private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {                                            
+    String nombreUsuario = txtNombreUsuario.getText();
+
+        Connection con = ConexionDB.conectar();
+        if (con != null) {
+            try {
+                String sql = "DELETE FROM usuarios WHERE nombre_usuario = ?";
+                PreparedStatement stmt = con.prepareStatement(sql);
+                stmt.setString(1, nombreUsuario);
+
+                int filasAfectadas = stmt.executeUpdate();
+                if (filasAfectadas > 0) {
+                    JOptionPane.showMessageDialog(this, "Usuario eliminado correctamente.");
+                    cargarTablaUsuarios(); // Recargar la tabla después de eliminar el usuario
+                }
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error al eliminar el usuario: " + e.getMessage());
+            } finally {
+                ConexionDB.cerrarConexion(con);
+            }
+        }
+    }
+```
+
+**`btnAñadirActionPerformed`**
+
+Agrega un nuevo usuario a la base de datos validando los datos ingresados (como correo, contraseña y tipo de usuario). Si los datos son válidos, los inserta en la tabla de usuarios y recarga la tabla.
+
+```java
+    private void btnAñadirActionPerformed(java.awt.event.ActionEvent evt) {                                          
+    String nombreUsuario = txtNombreUsuario.getText();
+        String nombre = txtNombre.getText();
+        String apellidos = txtApellidos.getText();
+        String correo = txtCorreo.getText();
+        String contrasena = txtContraseña.getText();
+        String tipoUsuario = (String) cmbTipoUsuario.getSelectedItem();
+
+        // Validaciones
+        if (!ValidacionUsuario.camposNoVacios(correo, contrasena)) {
+            JOptionPane.showMessageDialog(this, "El correo y la contraseña no pueden estar vacíos.");
+            return;
+        }
+
+        if (!ValidacionUsuario.tipoUsuarioValido(tipoUsuario)) {
+            JOptionPane.showMessageDialog(this, "Por favor, selecciona un tipo de usuario.");
+            return;
+        }
+
+        if (!ValidacionUsuario.valCorreo(correo)) {
+            JOptionPane.showMessageDialog(this, "El correo electrónico no tiene un formato válido.");
+            return;
+        }
+
+        if (!ValidacionUsuario.valContraseña(contrasena)) {
+            JOptionPane.showMessageDialog(this, "La contraseña debe tener al menos 6 caracteres.");
+            return;
+        }
+
+        // Proceder con la inserción en la base de datos
+        Connection con = ConexionDB.conectar();
+        if (con != null) {
+            try {
+                String sql = "INSERT INTO usuarios (nombre_usuario, nombre, apellidos, correo, contrasena, tipo_usuario) VALUES (?, ?, ?, ?, ?, ?)";
+                PreparedStatement stmt = con.prepareStatement(sql);
+                stmt.setString(1, nombreUsuario);
+                stmt.setString(2, nombre);
+                stmt.setString(3, apellidos);
+                stmt.setString(4, correo);
+                stmt.setString(5, contrasena);
+                stmt.setString(6, tipoUsuario);
+
+                int filasAfectadas = stmt.executeUpdate();
+                if (filasAfectadas > 0) {
+                    JOptionPane.showMessageDialog(this, "Usuario agregado correctamente.");
+                    cargarTablaUsuarios(); // Recargar la tabla después de agregar el usuario
+                }
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error al agregar el usuario: " + e.getMessage());
+            } finally {
+                ConexionDB.cerrarConexion(con);
+            }
+        }
+    }
+```
+                                        
+**`btnModificarActionPerformed`**
+A
+ctualiza los datos de un usuario seleccionado en la tabla, basándose en el nombre de usuario anterior como referencia. También valida los campos antes de proceder con la actualización.
+
+```java
+    private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {                                             
+    String nombreUsuario = txtNombreUsuario.getText(); // Asegúrate de que el texto se obtiene correctamente
+    String nombre = txtNombre.getText();
+    String apellidos = txtApellidos.getText();
+    String correo = txtCorreo.getText();
+    String contrasena = txtContraseña.getText();
+    String tipoUsuario = (String) cmbTipoUsuario.getSelectedItem();
+
+    // Verificamos que se haya seleccionado un usuario de la tabla
+    int filaSeleccionada = jTable1.getSelectedRow();
+    if (filaSeleccionada == -1) {
+        JOptionPane.showMessageDialog(this, "Por favor, selecciona un usuario de la tabla.");
+        return;
+    }
+
+    // Depuración: Verificar el contenido de la fila seleccionada
+    String nombreUsuarioAnterior = jTable1.getValueAt(filaSeleccionada, 0).toString();
+    System.out.println("Nombre de usuario anterior: " + nombreUsuarioAnterior); // Depuración
+
+    // Validaciones
+    if (!ValidacionUsuario.camposNoVacios(correo, contrasena)) {
+        JOptionPane.showMessageDialog(this, "El correo y la contraseña no pueden estar vacíos.");
+        return;
+    }
+
+    if (!ValidacionUsuario.tipoUsuarioValido(tipoUsuario)) {
+        JOptionPane.showMessageDialog(this, "Por favor, selecciona un tipo de usuario.");
+        return;
+    }
+
+    if (!ValidacionUsuario.valCorreo(correo)) {
+        JOptionPane.showMessageDialog(this, "El correo electrónico no tiene un formato válido.");
+        return;
+    }
+
+    if (!ValidacionUsuario.valContraseña(contrasena)) {
+        JOptionPane.showMessageDialog(this, "La contraseña debe tener al menos 6 caracteres.");
+        return;
+    }
+
+    // Proceder con la actualización en la base de datos
+    Connection con = ConexionDB.conectar();
+    if (con != null) {
+        try {
+            String sql = "UPDATE usuarios SET nombre = ?, apellidos = ?, correo = ?, contrasena = ?, tipo_usuario = ? WHERE nombre_usuario = ?";
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setString(1, nombreUsuario);
+            stmt.setString(1, nombre);
+            stmt.setString(2, apellidos);
+            stmt.setString(3, correo);
+            stmt.setString(4, contrasena);
+            stmt.setString(5, tipoUsuario);
+            stmt.setString(6, nombreUsuarioAnterior); // Utilizamos el nombre de usuario anterior como referencia
+
+            int filasAfectadas = stmt.executeUpdate();
+            if (filasAfectadas > 0) {
+                JOptionPane.showMessageDialog(this, "Usuario actualizado correctamente.");
+                cargarTablaUsuarios(); // Recargar la tabla después de actualizar el usuario
+            } else {
+                JOptionPane.showMessageDialog(this, "No se encontró el usuario para actualizar.");
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al actualizar el usuario: " + e.getMessage());
+        } finally {
+            ConexionDB.cerrarConexion(con);
+        }
+    }
+    }                                            
+```
+
+**`btnAñadir2ActionPerformed`**
+
+Limpia todos los campos del formulario (nombre de usuario, nombre, apellidos, correo, contraseña y tipo de usuario) y recarga la tabla de usuarios para reflejar cambios recientes.
+
+```java
+    private void btnAñadir2ActionPerformed(java.awt.event.ActionEvent evt) {                                           
+ // Limpiar los campos de texto
+        txtNombreUsuario.setText("");
+        txtNombre.setText("");
+        txtApellidos.setText("");
+        txtCorreo.setText("");
+        txtContraseña.setText("");
+        cmbTipoUsuario.setSelectedIndex(0); // Reseteamos el combo box a su valor predeterminado
+
+        // Actualizamos la tabla de usuarios
+        cargarTablaUsuarios();
+    }                                          
+```
+
+**`Table1MouseClicked`**
+
+Al hacer clic en una fila de la tabla, llena los campos del formulario con los datos del usuario seleccionado, permitiendo editarlos o visualizarlos.
+
+```java
+    private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {                                     
+        // Obtenemos el índice de la fila seleccionada
+        int filaSeleccionada = jTable1.getSelectedRow();
+
+        // Rellenamos los campos de texto con los datos de la fila seleccionada
+        if (filaSeleccionada != -1) {
+            txtNombreUsuario.setText(jTable1.getValueAt(filaSeleccionada, 0).toString());
+            txtNombre.setText(jTable1.getValueAt(filaSeleccionada, 1).toString());
+            txtApellidos.setText(jTable1.getValueAt(filaSeleccionada, 2).toString());
+            txtCorreo.setText(jTable1.getValueAt(filaSeleccionada, 3).toString());
+            String tipoUsuario = jTable1.getValueAt(filaSeleccionada, 4).toString();
+            cmbTipoUsuario.setSelectedItem(tipoUsuario);
+        }
+    }                                    
+```
+
+**`btnSiguienteActionPerformed`**
+
+Avanza a la siguiente página de la tabla de usuarios si no se ha alcanzado el límite de páginas y recarga los datos de la tabla.
+
+```java
+    private void btnSiguienteActionPerformed(java.awt.event.ActionEvent evt) {                                             
+            int totalPaginas = (int) Math.ceil((double) totalUsuarios / usuariosPorPagina);
+    if (paginaActual < totalPaginas) {
+        paginaActual++;
+        cargarTablaUsuarios(); // Recargar los usuarios para la siguiente página
+    }
+    }                                            
+```
+
+**`btnAtrasActionPerformed`**
+
+Retrocede a la página anterior de la tabla de usuarios si no se está en la primera página y recarga los datos de la tabla.
+
+```java
+    private void btnAtrasActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        if (paginaActual > 1) {
+        paginaActual--;
+        cargarTablaUsuarios(); // Recargar los usuarios para la página anterior
+    }
+    }                                        
+```
+
+**`cargarTablaUsuarios`**
+
+Llena la tabla de usuarios con los datos obtenidos de la base de datos, mostrando un número limitado de usuarios por página. Calcula el rango de registros a mostrar en función de la página actual.
+
+```java                                        
+ private void cargarTablaUsuarios() {
+        Connection con = ConexionDB.conectar();
+        if (con != null) {
+            try {
+                // Obtener el total de usuarios
+                String sqlTotal = "SELECT COUNT(*) FROM usuarios";
+                PreparedStatement stmtTotal = con.prepareStatement(sqlTotal);
+                ResultSet rsTotal = stmtTotal.executeQuery();
+                if (rsTotal.next()) {
+                    totalUsuarios = rsTotal.getInt(1);
+                }
+
+                // Calcular el rango de registros a mostrar
+                int inicio = (paginaActual - 1) * usuariosPorPagina;
+                String sql = "SELECT * FROM usuarios LIMIT ? OFFSET ?";
+                PreparedStatement stmt = con.prepareStatement(sql);
+                stmt.setInt(1, usuariosPorPagina);
+                stmt.setInt(2, inicio);
+                ResultSet rs = stmt.executeQuery();
+
+                // Limpiar la tabla antes de cargar nuevos datos
+                DefaultTableModel modelo = (DefaultTableModel) jTable1.getModel();
+                modelo.setRowCount(0);
+
+                // Agregar filas a la tabla
+                while (rs.next()) {
+                    Object[] fila = {
+                        rs.getString("nombre_usuario"),
+                        rs.getString("nombre"),
+                        rs.getString("apellidos"),
+                        rs.getString("correo"),
+                        rs.getString("tipo_usuario")
+                    };
+                    modelo.addRow(fila);
+                }
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error al cargar la tabla de usuarios: " + e.getMessage());
+            } finally {
+                ConexionDB.cerrarConexion(con);
+            }
+        }}
+```
+
+**`actualizarPaginacion`**
+
+Habilita o deshabilita los botones "Anterior" y "Siguiente" en función de si el usuario está en la primera o última página de la tabla, respectivamente.
+
+```java
+private void actualizarPaginacion() {
+    // Deshabilitar el botón "Anterior" si estamos en la primera página
+    btnVolver.setEnabled(paginaActual > 1);
+    
+    // Deshabilitar el botón "Siguiente" si estamos en la última página
+    int totalPaginas = (int) Math.ceil((double) totalUsuarios / usuariosPorPagina);
+    btnSiguiente.setEnabled(paginaActual < totalPaginas);
+}
+```
