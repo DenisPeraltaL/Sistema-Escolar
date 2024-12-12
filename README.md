@@ -1,7 +1,16 @@
 # Sistema escolar "Hope"
+# 1.Descripción del proyecto.
 
-# MODELO
-## Alumno
+
+# 2.Instrucciones de instalación y configuración.
+
+
+# 3.Explicación del funcionamiento y la estructura de la base de datos.
+
+
+# 4.Resumen de cada clase y sus responsabilidades.
+## MODELO
+### Alumno
 
 En modelo, tenemos la clase Alumno que representa un modelo para almacenar la información de un alumno.
 En ella podemos encontrar sus atributos, constructor y métodos setters y getters.
@@ -57,7 +66,7 @@ En ella podemos encontrar sus atributos, constructor y métodos setters y getter
     }
 ```
 
-## AlumnoDAO
+### AlumnoDAO
 
 La clase AlumnoDAO (Data Access Object) se encarga de la comunicación con la base de datos. Su función principal es realizar operaciones CRUD (Crear, Leer, Actualizar y Eliminar) para la tabla de alumnos en la base de datos, esto nos permite agregar alumnos a la base de datos y obtener alumnos almacenados en la base de datos.
 
@@ -117,7 +126,7 @@ La clase AlumnoDAO (Data Access Object) se encarga de la comunicación con la ba
     }
 ```
 
-## ConexionBD
+### ConexionBD
 
 La clase ConexionDB se encarga de gestionar la conexión entre una aplicación Java y una base de datos PostgreSQL, permitiendo establecer, reutilizar y cerrar conexiones de forma eficiente. Esta clase contiene tres métodos principales: conectar(), que establece una conexión con la base de datos utilizando la URL, el usuario y la contraseña definidos como constantes; cerrarConexion(Connection con), que cierra de forma segura la conexión para liberar recursos; y getConnection(), que actúa como un método de acceso para obtener una conexión reutilizando el método conectar(). Esta clase es esencial para ejecutar consultas SQL desde la aplicación, ya que facilita el acceso a la base de datos y la administración de las conexiones de forma centralizada.
 
@@ -161,7 +170,7 @@ La clase ConexionDB se encarga de gestionar la conexión entre una aplicación J
     }
 ```
 
-## Grupo
+### Grupo
 
 La clase Grupo cuenta con atributos como id, nombre, idProfesor y una lista de objetos Materia que están asociadas al grupo. Esta clase nos permite crear instancias de grupos con un nombre, un identificador del profesor responsable y una lista de materias asignadas. Además, incluye un constructor vacío y otro que inicializa sus atributos, junto con métodos getter y setter para acceder y modificar cada uno de ellos. La clase facilita la organización de los grupos, asignando a cada uno un conjunto de materias y un profesor responsable.
 
@@ -199,7 +208,7 @@ La clase Grupo cuenta con atributos como id, nombre, idProfesor y una lista de o
     }
 ```
 
-## GrupoDAO
+### GrupoDAO
 
 La clase GrupoDAO se encarga de gestionar la interacción con la base de datos para las operaciones relacionadas con los grupos. Su principal objetivo es permitir la inserción de un grupo y sus materias asociadas en la base de datos. La clase cuenta con el método insertarGrupo, que inserta un nuevo grupo y devuelve su id generado automáticamente por la base de datos. También tiene el método insertarMateriasDelGrupo, que asocia las materias a un grupo en la tabla grupos_materias. Finalmente, el método crearGrupo combina ambas acciones, primero insertando el grupo y luego asignándole sus materias correspondientes. Además, se utilizan conexiones de base de datos administradas por ConexionDB.
 
@@ -267,7 +276,7 @@ La clase GrupoDAO se encarga de gestionar la interacción con la base de datos p
     }
 ```
     
-## Horario
+### Horario
 
 La clase Horario nos permite almacenar la información relacionada con una materia específica, incluyendo el día de la semana, la hora de inicio y fin de la clase, así como el aula asignada. Esta clase cuenta con un constructor que inicializa todos sus atributos y métodos getter y setter para acceder y modificar cada uno de ellos, facilitando la manipulación de la información del horario. Esta clase se utiliza para generar, modificar o visualizar los horarios de clases de los estudiantes o profesores en nuestro sistema escolar.
 
@@ -333,7 +342,7 @@ La clase Horario nos permite almacenar la información relacionada con una mater
     }
 ```
 
-## Materia
+### Materia
 
 La clase Materia representa una materia académica con dos atributos principales: un identificador único (id) y el nombre de la materia (nombre). Esta clase también cuenta con un constructor para inicializar estos atributos, métodos getter para acceder a ellos y una sobrescritura del método toString(), que devuelve el nombre de la materia como una representación en texto. Esta clase nos servirá para almacenar y mostrar la información de las materias dentro de nuestro sistema.
 
@@ -358,7 +367,7 @@ La clase Materia representa una materia académica con dos atributos principales
     }
 ```
 
-## MateriaDAO
+### MateriaDAO
 
 La clase MateriaDAO se encarga de gestionar las operaciones de acceso a datos relacionadas con las materias en nuestra base de datos de postgres. El método listarTodas() obtiene todas las materias almacenadas en la tabla materias de la base de datos. Realiza una consulta SQL para seleccionar los identificadores (id) y los nombres (nombre_materia) de las materias, y luego los almacena en una lista de objetos Materia. Al finalizar la operación, cierra la conexión con la base de datos y retorna la lista de materias.
 
@@ -400,7 +409,7 @@ La clase MateriaDAO se encarga de gestionar las operaciones de acceso a datos re
     }
 ```    
     
-## Profesor
+### Profesor
 
 La clase Profesor almacena información personal y profesional. Tiene atributos como el nombre, apellido paterno, apellido materno, teléfono, domicilio, cédula, especialidad y fecha de inicio de labores del profesor. Además, incluye un constructor para inicializar estos atributos y métodos getter y setter para cada uno de los campos, permitiendo acceder y modificar los valores de los atributos. Esta clase la utilizamos en nuestro sistema para encapsular los datos del profesor y facilitar su manejo en el sistema para gestionar la información de los docentes.
 
@@ -457,7 +466,7 @@ La clase Profesor almacena información personal y profesional. Tiene atributos 
     }
 ```
 
-## Usuario
+### Usuario
 
 La clase Usuario representa a un usuario en el sistema escolar, con atributos como el nombre de usuario, nombre, apellidos, correo electrónico y tipo de usuario. Tiene un constructor que inicializa estos atributos y métodos getter y setter para cada uno de ellos, permitiendo acceder y modificar los valores. El campo tipoUsuario es para diferenciar entre diferentes tipos de usuarios (en este caso: administrador, profesor, alumno). Esta clase nos sirve  para gestionar la información de los usuarios dentro del sistema, facilitando la manipulación de datos relacionados con la autenticación y gestión de usuarios.
 
@@ -524,7 +533,7 @@ La clase Usuario representa a un usuario en el sistema escolar, con atributos co
     }
 ```    
 
-## UsuarioControl
+### UsuarioControl
 
 La clase UsuarioControl es la responsable de interactuar con la base de datos para obtener la información de los usuarios y llenar la tabla con estos datos. 
 
@@ -576,7 +585,7 @@ En este caso, el método obtenerUsuarios realiza lo siguiente:
     }
 ```
 
-## UsuarioDAO
+### UsuarioDAO
 
 La clase UsuarioDAO interactua con la base de datos para obtener información sobre los usuarios y devolverla como una lista de objetos Usuario. 
 Cuenta con los siguientes métodos:
@@ -636,7 +645,7 @@ Es importante asegurarse de que la URL de la base de datos y tanto el usuario co
     }
 ```
 
-# CONTROLADOR
+## CONTROLADOR
 
 ##RegistroUsuario
 Esta clase se encarga de registrar un nuevo usuario en la base de datos. Contiene un método llamado registrarUsuario que recibe cuatro parámetros: nombreUsuario, correo, contrasena y tipoUsuario. Este método establece una conexión con la base de datos a través de la clase ConexionDB. Si la conexión es exitosa, prepara una sentencia SQL para insertar los datos del nuevo usuario en la tabla usuarios. Los valores de los parámetros se asignan a la consulta utilizando un PreparedStatement. Luego, ejecuta la consulta y, si se insertan filas correctamente, devuelve true, indicando que el registro fue exitoso. Si ocurre algún error durante el proceso, el método maneja la excepción SQLException y devuelve false, indicando que el registro falló.
@@ -674,7 +683,7 @@ public class RegistroUsuario {
 }
 ```
 
-##Validacion
+### Validacion
 La clase Validacion tiene métodos para verificar diferentes aspectos relacionados con los datos de un usuario. Contiene métodos para validar el formato del correo electrónico (valCorreo), asegurando que siga una expresión regular básica para correos electrónicos. También valida que la contraseña tenga al menos 6 caracteres a través del método valContraseña. El método camposNoVacios verifica que tanto el correo como la contraseña no estén vacíos. Además, el método validarUsuario realiza una consulta en la base de datos para comprobar si las credenciales proporcionadas (usuario y contraseña) existen, retornando true si son válidas y false si no lo son. Este último método es esencial para la autenticación de usuarios en la aplicación.
 
 ```java
@@ -758,7 +767,7 @@ public boolean validarUsuario(String usuario, String contrasena) {
 }
 ```
 
-##ValidacionUsuario
+### ValidacionUsuario
 La clase ValidacionUsuario proporciona varios métodos estáticos para realizar validaciones relacionadas con los datos de un usuario. El método camposNoVacios verifica que los campos de correo y contraseña no estén vacíos. El método valCorreo valida que el formato del correo electrónico sea correcto utilizando una expresión regular. Por su parte, valContraseña asegura que la contraseña tenga al menos 6 caracteres. Finalmente, el método tipoUsuarioValido comprueba que el tipo de usuario no sea el valor predeterminado ("Tipo de usuario"). Estos métodos son útiles para asegurar que los datos proporcionados por los usuarios sean correctos antes de proceder con su registro o autenticación.
 
 ```java
@@ -788,4 +797,4 @@ public class ValidacionUsuario {
 }
 ```
 
-# VISTA
+## VISTA
