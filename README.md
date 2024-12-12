@@ -214,6 +214,13 @@ ALTER TABLE IF EXISTS public.profesores
 END;
 ```
 
+Una vez tengamos el codigo en nuestra terminal, simplemente lo ejecutaremos,para ello localizamos el botón de `execute script` ![image](https://github.com/user-attachments/assets/b8093c84-a60f-45d7-921f-0e604c53605a) y le daremos clic
+
+![image](https://github.com/user-attachments/assets/df23bbb4-c6b0-4dae-851b-e502c5681a23)
+
+Si todo salió de forma correcta, podremos visualizar nuestras tablas en `hope` -> `schemas` -> `public` -> `Tables`.
+![image](https://github.com/user-attachments/assets/fbfcf428-d6d1-43f2-8efd-332154549622)
+
 
 # 4.Resumen de cada clase y sus responsabilidades.
 ## MODELO
