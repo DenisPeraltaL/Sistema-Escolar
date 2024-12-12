@@ -1,4 +1,9 @@
 # Sistema escolar "Hope"
+Proyecto final sobre sistema escolar
+**Equipo 14**
+Rodriguez Alavés Alejandro
+Peralta López Denis
+
 # 1.Descripción del proyecto.
 
 
