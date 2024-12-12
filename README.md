@@ -2585,6 +2585,8 @@ private class Profesor {
 
 ![image](https://github.com/user-attachments/assets/205e3a31-a9f9-4cba-94dd-716eb9503f2d)
 
+**`btnAlumno1ActionPerformed`**
+Abre la ventana de registro de alumnos (RegistroAlumno). Este método crea una nueva instancia de la ventana y la hace visible para que el administrador pueda registrar alumnos.
 
 ```java
     private void btnAlumno1ActionPerformed(java.awt.event.ActionEvent evt) {                                           
@@ -2593,6 +2595,8 @@ private class Profesor {
     }                                          
 ```
 
+**`btnProfesorActionPerformed`**
+Abre la ventana de registro de profesores (RegistroProfesor). Similar al anterior, inicializa una nueva instancia y la muestra.
 
 ```java
     private void btnProfesorActionPerformed(java.awt.event.ActionEvent evt) {                                            
@@ -2601,6 +2605,8 @@ private class Profesor {
     }                                           
 ```
 
+**`btnMateriaActionPerformed`**
+Abre la ventana para agregar una nueva materia (VAdmNuevaMateria). Permite gestionar el registro de nuevas materias.
 
 ```java
     private void btnMateriaActionPerformed(java.awt.event.ActionEvent evt) {                                           
@@ -2609,12 +2615,18 @@ private class Profesor {
     }                                          
 ```
 
+**`btnGrupoActionPerformed`**
+Abre la ventana para crear un nuevo grupo (VPNuevoGrupo). Facilita la gestión de grupos en la plataforma.
+
 ```java
     private void btnGrupoActionPerformed(java.awt.event.ActionEvent evt) {                                         
         VPNuevoGrupo ventanaNuevoGpo = new VPNuevoGrupo();
         ventanaNuevoGpo.setVisible(true);
     }                                        
 ```
+
+**`btnCerrarSesionActionPerformed`**
+Cierra la sesión actual y abre la ventana de inicio de sesión (Login). Además, libera los recursos de la ventana actual (this.dispose()).
 
 ```java
     private void btnCerrarSesionActionPerformed(java.awt.event.ActionEvent evt) {                                                
