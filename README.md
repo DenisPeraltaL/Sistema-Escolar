@@ -2581,5 +2581,45 @@ private class Profesor {
 }
 ```
 
+### VAdmPaginaPrincipalAdmin
+
+![image](https://github.com/user-attachments/assets/205e3a31-a9f9-4cba-94dd-716eb9503f2d)
 
 
+```java
+    private void btnAlumno1ActionPerformed(java.awt.event.ActionEvent evt) {                                           
+        RegistroAlumno ventanaRegistroA = new RegistroAlumno();
+        ventanaRegistroA.setVisible(true);
+    }                                          
+```
+
+
+```java
+    private void btnProfesorActionPerformed(java.awt.event.ActionEvent evt) {                                            
+        RegistroProfesor ventanaRegistroP = new RegistroProfesor();
+        ventanaRegistroP.setVisible(true);
+    }                                           
+```
+
+
+```java
+    private void btnMateriaActionPerformed(java.awt.event.ActionEvent evt) {                                           
+        VAdmNuevaMateria ventanaNuevaMat = new VAdmNuevaMateria();
+        ventanaNuevaMat.setVisible(true);
+    }                                          
+```
+
+```java
+    private void btnGrupoActionPerformed(java.awt.event.ActionEvent evt) {                                         
+        VPNuevoGrupo ventanaNuevoGpo = new VPNuevoGrupo();
+        ventanaNuevoGpo.setVisible(true);
+    }                                        
+```
+
+```java
+    private void btnCerrarSesionActionPerformed(java.awt.event.ActionEvent evt) {                                                
+        Login ventanaIniciar = new Login();
+        ventanaIniciar.setVisible(true);
+        this.dispose();
+    }                               
+```
