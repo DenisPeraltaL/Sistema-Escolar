@@ -2637,7 +2637,7 @@ Cierra la sesión actual y abre la ventana de inicio de sesión (Login). Además
 ```
 
 
-##VPNuevoGrupo
+### VPNuevoGrupo
 
 ![image](https://github.com/user-attachments/assets/1157b7d6-3e91-4509-b658-6962cd146936)
 
@@ -2726,6 +2726,10 @@ Permite eliminar un grupo seleccionado de una tabla (jTable1). Verifica que haya
     }
 } 
 ```
+
+**`existeConflictoHorario`**
+
+Este método verifica si una materia genera un conflicto de horarios dentro de un grupo. Consulta la base de datos para contar cuántas veces una materia está vinculada al grupo especificado. Si encuentra registros coincidentes, devuelve true, indicando un conflicto. En caso contrario, devuelve false. Si ocurre un error durante la consulta, muestra un mensaje de error al usuario con detalles del problema.
 
 ```java
 // Método auxiliar para validar conflictos de horarios
