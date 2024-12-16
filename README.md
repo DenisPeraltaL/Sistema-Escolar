@@ -1102,7 +1102,6 @@ En nuestra vista login, se incluye una combinación de validaciones de datos y l
 A continuación, explicaremos cada uno de sus métodos.
 
 **`txtUsuarioFocusLost:`**
-
 Comprueba si el campo de texto txtUsuario está vacío al perder el foco. Si está vacío, muestra un indicador visual (lblObligatorio1) para indicar que es un campo obligatorio.
 
 ```java
@@ -1117,16 +1116,15 @@ Comprueba si el campo de texto txtUsuario está vacío al perder el foco. Si est
 ```
 
 **`txtUsuarioActionPerformed`**
-
 Este evento se activa cuando el usuario presiona Enter mientras está en el campo de texto.
 
 ```java
     private void txtUsuarioActionPerformed(java.awt.event.ActionEvent evt) {                                           
         //leerArchivo();
     }                                          
-```                               
-**`btnIngreso`**
+```
 
+**`btnIngreso`**
 Este es el método principal para gestionar el inicio de sesión. Obtiene los valores ingresados por el usuario (correo, contraseña y tipoUsuario).
 - Validaciones: - 
 - Que los campos no estén vacíos.
@@ -1238,7 +1236,6 @@ if (rs.next()) {
 ```
 
 **`txtContraseñaFocusLost`**
-
 Valida la contraseña. Si no cumple con los criterios, muestra un mensaje de advertencia visual.
 
 ```java
@@ -1253,7 +1250,6 @@ Valida la contraseña. Si no cumple con los criterios, muestra un mensaje de adv
 ```
 
 **`btnUnir1ActionPerformed`**
-
 Abre la ventana de registro para crear un nuevo usuario (NuevoUsuario).
 
 ```java
@@ -1264,7 +1260,6 @@ Abre la ventana de registro para crear un nuevo usuario (NuevoUsuario).
 ```
 
 **`lblOjo1`**
-
 Alternan la visibilidad de los caracteres en el campo de contraseña entre ocultos (*) y visibles, usando la variable contraseñaVisible.
                                
 ```java
@@ -1281,7 +1276,6 @@ Alternan la visibilidad de los caracteres en el campo de contraseña entre ocult
 ```
 
 **`getIdProfesor`**
-
 Este método consulta el ID del profesor asociado a un usuario en la base de datos.
 Si encuentra un registro, retorna el ID del profesor. Si no, devuelve -1.
 
@@ -1327,7 +1321,6 @@ private int getIdProfesor(int idUsuario) {
 ![image](https://github.com/user-attachments/assets/638fc5e0-4283-4eae-8071-e5acf1074d06)
 
 **`btnVolverActionPerformed`**
-
 Cierra la ventana actual del formulario al ejecutar this.dispose().
 
 ```java
@@ -1338,7 +1331,6 @@ Cierra la ventana actual del formulario al ejecutar this.dispose().
 ```
 
 **`btnEliminarActionPerformed`**
-
 Elimina un usuario de la base de datos en función del valor ingresado en el campo "nombreUsuario". Si el usuario es eliminado correctamente, se muestra un mensaje de confirmación y se recarga la tabla de usuarios.
 
 ```java
@@ -1367,7 +1359,6 @@ Elimina un usuario de la base de datos en función del valor ingresado en el cam
 ```
 
 **`btnAñadirActionPerformed`**
-
 Agrega un nuevo usuario a la base de datos validando los datos ingresados (como correo, contraseña y tipo de usuario). Si los datos son válidos, los inserta en la tabla de usuarios y recarga la tabla.
 
 ```java
@@ -1502,7 +1493,6 @@ Actualiza los datos de un usuario seleccionado en la tabla, basándose en el nom
 ```
 
 **`btnAñadir2ActionPerformed`**
-
 Limpia todos los campos del formulario (nombre de usuario, nombre, apellidos, correo, contraseña y tipo de usuario) y recarga la tabla de usuarios para reflejar cambios recientes.
 
 ```java
@@ -1521,7 +1511,6 @@ Limpia todos los campos del formulario (nombre de usuario, nombre, apellidos, co
 ```
 
 **`Table1MouseClicked`**
-
 Al hacer clic en una fila de la tabla, llena los campos del formulario con los datos del usuario seleccionado, permitiendo editarlos o visualizarlos.
 
 ```java
@@ -1542,7 +1531,6 @@ Al hacer clic en una fila de la tabla, llena los campos del formulario con los d
 ```
 
 **`btnSiguienteActionPerformed`**
-
 Avanza a la siguiente página de la tabla de usuarios si no se ha alcanzado el límite de páginas y recarga los datos de la tabla.
 
 ```java
@@ -1556,7 +1544,6 @@ Avanza a la siguiente página de la tabla de usuarios si no se ha alcanzado el l
 ```
 
 **`btnAtrasActionPerformed`**
-
 Retrocede a la página anterior de la tabla de usuarios si no se está en la primera página y recarga los datos de la tabla.
 
 ```java
@@ -1569,7 +1556,6 @@ Retrocede a la página anterior de la tabla de usuarios si no se está en la pri
 ```
 
 **`cargarTablaUsuarios`**
-
 Llena la tabla de usuarios con los datos obtenidos de la base de datos, mostrando un número limitado de usuarios por página. Calcula el rango de registros a mostrar en función de la página actual.
 
 ```java                                        
@@ -1617,7 +1603,6 @@ Llena la tabla de usuarios con los datos obtenidos de la base de datos, mostrand
 ```
 
 **`actualizarPaginacion`**
-
 Habilita o deshabilita los botones "Anterior" y "Siguiente" en función de si el usuario está en la primera o última página de la tabla, respectivamente.
 
 ```java
@@ -1637,7 +1622,6 @@ private void actualizarPaginacion() {
 ![image](https://github.com/user-attachments/assets/252a8df3-9440-4306-aa90-e39d64530023)
 
 **`btnVolverActionPerformed`**
-
 Cierra la ventana actual utilizando el método dispose().
 
 ```java
@@ -1648,7 +1632,6 @@ Cierra la ventana actual utilizando el método dispose().
 ```
 
 **`btnAñadirActionPerformed`**
-
 Valida los datos de entrada del formulario (nombre, correo, teléfono, género, etc.), asegura que cumplen con los formatos requeridos, y los inserta en la base de datos como un nuevo alumno. Después, limpia los campos del formulario y actualiza la tabla de alumnos.
 
 ```java
@@ -1756,7 +1739,6 @@ private void btnEliminarActionPerformed(java.awt.event.ActionEvent evt) {
 ```
 
 **`jTable1MouseClicked`**
-
 Carga los datos del alumno seleccionado en la tabla hacia los campos del formulario, obteniéndolos de la base de datos según su número de control.
 
 ```java
@@ -1788,7 +1770,6 @@ Carga los datos del alumno seleccionado en la tabla hacia los campos del formula
 ```
 
 **`btnModificar1ActionPerformed`**
-
 Valida los datos del formulario y actualiza en la base de datos los datos del alumno seleccionado. Luego, limpia los campos y actualiza la tabla.
 
 ```java
@@ -1866,7 +1847,6 @@ Valida los datos del formulario y actualiza en la base de datos los datos del al
 ```
 
 **`cmbUsuarioActionPerformed`**
-
 Al seleccionar un usuario en el ComboBox, consulta sus datos en la base de datos y los carga en los campos del formulario. Si no se selecciona un usuario válido, limpia los campos.
 
 ```java
@@ -1939,7 +1919,6 @@ String selectedUser = (String) cmbUsuario.getSelectedItem();
 ```
 
 **`cargarTabla`**
-
 Recupera los datos de todos los alumnos desde la base de datos y los carga en la tabla.
 
 ```java                                      
@@ -1970,7 +1949,6 @@ private void cargarTabla() {
 ```
 
 **`limpiarCampos`**
-
 Limpia todos los campos del formulario y restablece el ComboBox de género al valor predeterminado.
 
 ```java
@@ -1986,7 +1964,6 @@ Limpia todos los campos del formulario y restablece el ComboBox de género al va
     }
 ```
 **`initUserComboBox`**
-
 Carga en el ComboBox los usuarios de tipo "Alumno" desde la base de datos, mostrando su ID y nombre completo.
 
 ```java
@@ -2010,17 +1987,11 @@ Carga en el ComboBox los usuarios de tipo "Alumno" desde la base de datos, mostr
 ```
 
 
-
-
-
-
-
 ### RegistroProfesor
 
 ![image](https://github.com/user-attachments/assets/156c31e2-c901-4096-b53e-28b684a85ead)
 
 **`btnVolverActionPerformed`**
-
 Cierra la ventana actual al ser llamado.
 
 ```java
@@ -2030,7 +2001,6 @@ Cierra la ventana actual al ser llamado.
 ```
 
 **`btnAñadirActionPerformed`**
-
 Valida que los campos del formulario estén completos, extrae los datos ingresados, e inserta un nuevo profesor en la base de datos, asociándolo con un usuario seleccionado del combo box. Si la operación es exitosa, limpia los campos y actualiza la tabla.
 
 ```java
@@ -2083,7 +2053,6 @@ Valida que los campos del formulario estén completos, extrae los datos ingresad
 ```
 
 **`btnModificarActionPerformed`**
-
 Permite modificar los datos de un profesor seleccionado en la tabla. Valida que los campos no estén vacíos, actualiza los datos en la base de datos, y recarga la tabla con la información actualizada.
 
 ```java
@@ -2132,7 +2101,6 @@ Permite modificar los datos de un profesor seleccionado en la tabla. Valida que 
 ```
 
 **`btnEliminarActionPerformed`**
-
 Elimina un profesor seleccionado de la base de datos, basado en el ID seleccionado desde la tabla, y luego actualiza la tabla.
 
 ```java
@@ -2163,7 +2131,6 @@ Elimina un profesor seleccionado de la base de datos, basado en el ID selecciona
 ```
 
 **`jTable1MouseClicked`**
-
 Al hacer clic en una fila de la tabla, obtiene el ID del profesor y recupera sus datos desde la base de datos para rellenar los campos del formulario.
 
 ```java
@@ -2208,7 +2175,6 @@ Al hacer clic en una fila de la tabla, obtiene el ID del profesor y recupera sus
 ```
 
 **`cmbUsuarioActionPerformed`**
-
 Carga los datos del usuario seleccionado en el combo box (incluyendo nombre, apellidos y correo), rellenando los campos del formulario con esta información.
 
 ```java
@@ -2243,7 +2209,6 @@ Carga los datos del usuario seleccionado en el combo box (incluyendo nombre, ape
 ```
 
 **`initUserComboBox`**
-
 Inicializa el combo box de usuarios cargando los datos de usuarios tipo "Profesor" desde la base de datos y agregándolos como opciones.
 
 ```java
@@ -2272,7 +2237,6 @@ private void initUserComboBox() {
 ```
 
 **`cargarTabla`**
-
 Carga los datos de los profesores desde la base de datos y los muestra en la tabla, actualizando su contenido.
 
 ```java
@@ -2303,7 +2267,6 @@ Carga los datos de los profesores desde la base de datos y los muestra en la tab
 ```
 
 **`limpiarCampos`**
-
 Limpia los campos del formulario, dejándolos en blanco.
 
 ```java
@@ -2323,7 +2286,6 @@ Limpia los campos del formulario, dejándolos en blanco.
 ![image](https://github.com/user-attachments/assets/4ec25ac0-7c79-41f8-8c96-29461168e398)
 
 **`Constructor VAdmNuevaMateria`**
-
 Este constructor inicializa los componentes de la interfaz gráfica utilizando el método initComponents(), que configura todos los elementos visuales y su disposición. Además, llama a los métodos loadProfessorNames() y loadHours() para cargar los nombres de los profesores y las horas disponibles en los respectivos JComboBox. Finalmente, establece la ventana en un estado maximizado (MAXIMIZED_BOTH) para ocupar toda la pantalla.
 
 ```java
@@ -2335,7 +2297,6 @@ Este constructor inicializa los componentes de la interfaz gráfica utilizando e
     }
 ```
 **`btnVolverActionPerformed`**
-
 Este método se ejecuta cuando el usuario presiona el botón "Volver". Su función principal es cerrar la ventana actual (dispose()), permitiendo al usuario regresar a la pantalla anterior.
 
 ```java
@@ -2346,7 +2307,6 @@ Este método se ejecuta cuando el usuario presiona el botón "Volver". Su funci�
 ```
 
 **`btnCrearActionPerformed`**
-
 Este es el método más complejo y contiene la lógica para crear una nueva materia. Valida primero que el usuario haya seleccionado un profesor y haya ingresado el nombre de la materia. Luego, abre un cuadro de diálogo (JDialog) que permite al usuario seleccionar los días de la semana para la materia mediante JCheckBox. Una vez que se seleccionan los días y las horas de inicio y fin, el método valida que la hora de fin sea posterior a la de inicio y guarda toda la información en la base de datos mediante una consulta SQL (INSERT INTO materias). Si hay algún error durante este proceso, se muestra un mensaje apropiado.
 
 ```java
@@ -2461,7 +2421,6 @@ Este es el método más complejo y contiene la lógica para crear una nueva mate
 ```                                        
 
 **`cmbUsuarioActionPerformed`**
-
 Este método se ejecuta cuando el usuario selecciona un profesor del JComboBox que lista a los docentes. Recupera el índice seleccionado y obtiene los datos del profesor (nombre, apellidos y correo) desde una lista local (profesoresList). Los datos se muestran automáticamente en los campos de texto correspondientes (txtNDocente y txtCorreo). Si no se selecciona ningún profesor, los campos se limpian.
 
 ```java
@@ -2480,7 +2439,6 @@ Este método se ejecuta cuando el usuario selecciona un profesor del JComboBox q
 ```
 
 **`loadHours`**
-
 Este método llena los JComboBox correspondientes a las horas de inicio y fin con intervalos de 30 minutos, desde las 00:00 hasta las 23:30. Utiliza un bucle para generar las horas en formato HH:mm y las añade dinámicamente a las listas desplegables.
 
 ```java                                               
@@ -2498,7 +2456,6 @@ Este método llena los JComboBox correspondientes a las horas de inicio y fin co
 ```
 
 **`loadProfessorNames`**
-
 Carga los nombres de los profesores desde la base de datos. Se conecta a la base de datos mediante una clase llamada ConexionDB y ejecuta una consulta SQL para obtener información de los profesores que están registrados como usuarios de tipo "Profesor". Los resultados se añaden al JComboBox que lista a los profesores para que el usuario pueda seleccionarlos al crear una materia.
 
 ```java
@@ -2548,7 +2505,6 @@ private void loadProfessorNames() {
 ```
 
 **`getProfesorIdFromComboBox`**
-
 Este método se utiliza para obtener el ID del profesor seleccionado en el JComboBox que lista a los docentes.
 Recibe como parámetro el índice seleccionado (selectedIndex) en el JComboBox.
 Si el índice es mayor a 0 (es decir, no se seleccionó la opción predeterminada), obtiene el objeto Profesor correspondiente desde la lista profesoresList restando 1 al índice (ya que el JComboBox incluye una opción inicial vacía). Devuelve el ID del profesor seleccionado. Si no se seleccionó ningún profesor (índice 0), retorna -1 para indicar un valor inválido.
@@ -2642,7 +2598,6 @@ Cierra la sesión actual y abre la ventana de inicio de sesión (Login). Además
 ![image](https://github.com/user-attachments/assets/1157b7d6-3e91-4509-b658-6962cd146936)
 
 **`btnVolverActionPerformed`**
-
 Cierra la ventana actual (this.dispose()), permitiendo al usuario regresar a la ventana previa.
 
 ```java
@@ -2652,7 +2607,6 @@ Cierra la ventana actual (this.dispose()), permitiendo al usuario regresar a la 
 ```
 
 **`btnEliminarGrupoActionPerformed`**
-
 Permite eliminar un grupo seleccionado de una tabla (jTable1). Verifica que haya una fila seleccionada, muestra un mensaje de error si no la hay, y elimina la fila seleccionada del modelo de la tabla.
 
 ```java
@@ -2728,7 +2682,6 @@ Permite eliminar un grupo seleccionado de una tabla (jTable1). Verifica que haya
 ```
 
 **`existeConflictoHorario`**
-
 Este método verifica si una materia genera un conflicto de horarios dentro de un grupo. Consulta la base de datos para contar cuántas veces una materia está vinculada al grupo especificado. Si encuentra registros coincidentes, devuelve true, indicando un conflicto. En caso contrario, devuelve false. Si ocurre un error durante la consulta, muestra un mensaje de error al usuario con detalles del problema.
 
 ```java
@@ -2754,7 +2707,6 @@ private boolean existeConflictoHorario(int idMateria, int idGrupo) {
 ```
 
 **`existeConflictoHorario`**
-
 Verifica si existe un conflicto de horarios entre una materia y un grupo. Consulta la base de datos para determinar si la materia especificada ya está asociada al grupo. Devuelve true si hay un conflicto y false en caso contrario. Si ocurre un error durante la verificación, muestra un mensaje con detalles del problema.
 
 ```java
@@ -2777,7 +2729,6 @@ private void insertarMateriasSeleccionadas(Connection con, int idGrupo) {
 ```
 
 **`btnAnadirActionPerformed`**
-
 Añade una materia seleccionada desde un JComboBox a la tabla de materias del grupo (jTable1). Verifica que la materia no esté duplicada en la tabla y recupera detalles de la materia (días, hora de inicio y fin) desde la base de datos para mostrarlos en la tabla.
 
 ```java
@@ -2827,7 +2778,6 @@ String selectedMateria = (String) cmbMateria.getSelectedItem();
 ```
 
 **`inicializarTabla`**
-
 Inicializa la tabla (jTable1) con las columnas necesarias para mostrar la información de las materias, como ID, nombre, días, hora de inicio y hora de fin.
 
 ```java                                      
@@ -2841,7 +2791,6 @@ Inicializa la tabla (jTable1) con las columnas necesarias para mostrar la inform
 ```
 
 **`cargarProfesores`**
-
 Carga los profesores disponibles desde la base de datos y los agrega al JComboBox correspondiente (cmbProfesor). Incluye una opción inicial "Seleccionar Profesor" y muestra un mensaje de error si ocurre algún problema al cargar los datos.
 
 ```java
@@ -2868,7 +2817,6 @@ private void cargarProfesores() {
 ```
 
 **`cargarMaterias`**
-
 Carga las materias existentes desde la base de datos y las agrega al JComboBox de materias (cmbMateria). Similar al método anterior, incluye una opción inicial "Seleccionar Materia" y gestiona errores en caso de fallos en la conexión o consulta.
 
 ```java
@@ -2898,15 +2846,12 @@ private void cargarMaterias() {
 
 La clase VPNuevaTarea es una ventana para asignar tareas a grupos de estudiantes. A continuación se describen de manera resumida los métodos de esta clase:
 
-
 ![image](https://github.com/user-attachments/assets/d8030eb7-5c41-4fdd-9670-8abda4895b0d)
 
 **`VPNuevaTarea`**
-
 En el constructor de la clase se inicializa los componentes, obtiene el ID del profesor desde la sesión, valida si el ID es nulo (en cuyo caso cierra la ventana) y configura la ventana para que se maximice y tenga el título "Asignar Tareas". También llama a cargarGruposProfesor para cargar los grupos del profesor.
 
 **`seleccionarArchivoPDF`**
-
 Método que permite al usuario seleccionar un archivo PDF para las instrucciones de la tarea. Usa un JFileChooser para elegir el archivo.
 
 ```java
@@ -2923,7 +2868,6 @@ Método que permite al usuario seleccionar un archivo PDF para las instrucciones
 ```
 
 **`asignarTarea`**
-
 Método que asigna la tarea. Valida que los campos estén completos, convierte el archivo PDF a un arreglo de bytes (si se seleccionó un archivo) y crea un objeto Tarea con los datos introducidos. Luego llama al método asignarTarea del DAO (TareaDAO) para guardar la tarea en la base de datos.
 
 ```java
@@ -2970,7 +2914,6 @@ Método que asigna la tarea. Valida que los campos estén completos, convierte e
 ```
 
 **`cargarGruposProfesor(int idProfesor)`**
-
 Método que carga los grupos del profesor desde la base de datos. Ejecuta una consulta SQL para obtener los grupos asociados al ID del profesor y los agrega a un JComboBox (cmbGrupo).
 
 ```java
@@ -3010,39 +2953,30 @@ Método que carga los grupos del profesor desde la base de datos. Ejecuta una co
 ```
 
 **`btnGenerarInsActionPerformed`**
-
 Método que se ejecuta cuando se presiona el botón "Generar Instrucciones". Llama al método seleccionarArchivoPDF para seleccionar un archivo PDF con las instrucciones de la tarea.
 
 **`btnVolverActionPerformed`**
-
 Método que cierra la ventana actual.
 
 **`btnCancelarActionPerformed`**
-
 Método que limpia los campos de texto (txtNombreTarea y txtInstrucciones).
 
 **`btnCrearActionPerformed`**
-
 Método que se ejecuta cuando se presiona el botón "Crear". Llama al método asignarTarea para asignar la tarea.
 
 **`btnAlumnoActionPerformed`**
-
 Método que abre una nueva ventana (VPAlumnos) para gestionar los alumnos.
 
 **`btnTareaActionPerformed`**
-
 Método que abre una nueva ventana (VPNuevaTarea) para asignar una nueva tarea.
 
 **`btnHorarioActionPerformed`**
-
 Método que abre una nueva ventana (VPHorarioProfesor) para ver el horario del profesor.
 
 **`btnCerrarSesionActionPerformed`**
-
 Método que abre la ventana de inicio de sesión (Login) y cierra la ventana actual.
 
 **`btnCalificacionesActionPerformed`**
-
 Método que abre una nueva ventana (VPCalificaciones) para gestionar las calificaciones.
 
 
@@ -3051,7 +2985,6 @@ Método que abre una nueva ventana (VPCalificaciones) para gestionar las calific
 ![image](https://github.com/user-attachments/assets/1f5e99ac-1907-4cf7-a47a-888372cdce19)
 
 **`VAlEntregarTarea()`**
-
 Este es el constructor de la clase, que inicializa la ventana de la interfaz gráfica.
 Con cargarTareas(idAlumno), si el ID del alumno está disponible, carga las tareas asignadas para este alumno.
 
@@ -3063,26 +2996,22 @@ Este método se ejecuta cuando se hace clic en el botón para añadir un archivo
 Llama al método seleccionarArchivoPDF() que abre un cuadro de diálogo para seleccionar un archivo PDF.
 
 **`btnEntregarTarea`**
-
 Llama al método que maneja la entrega de la tarea, cargando el archivo PDF seleccionado y enviándolo a la base de datos.
 
 **`comboTareas`**
-
 Obtiene el nombre de la tarea seleccionada en el combo y busca la tarea correspondiente en la lista de tareas.
 Si la tarea es válida, carga las instrucciones asociadas con la tarea seleccionada.
 
 **`btnCerrarSesion`**
-
 Abre la ventana de inicio de sesión (Login) y cierra la ventana actual.
 
 **`btnHorario`**
-
 Este método abre la ventana VAlHorarioAlumno, que muestra el horario del alumno.
 
 **`obtenerTareaPorNombre(String nombreTarea)`**
-
 Este método busca una tarea en la lista listaTareas por su nombre:
 Itera a través de la lista de tareas y devuelve la tarea cuyo nombre coincide con el parámetro nombreTarea.
+
 ```java
 private Tarea obtenerTareaPorNombre(String nombreTarea) {
     for (Tarea tarea : listaTareas) {
@@ -3092,12 +3021,14 @@ private Tarea obtenerTareaPorNombre(String nombreTarea) {
     }
     return null;
 }
-    
+```
+
 **`seleccionarArchivoPDF()`**
 Este método abre un cuadro de diálogo para seleccionar un archivo PDF.
 Usa JFileChooser para permitir al usuario seleccionar un archivo con extensión .pdf.
 Si el usuario selecciona un archivo, lo guarda en el atributo archivoPDF.
 
+```java
     private void seleccionarArchivoPDF() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("PDF Files", "pdf"));
@@ -3110,7 +3041,6 @@ Si el usuario selecciona un archivo, lo guarda en el atributo archivoPDF.
 ```
 
 **`entregarTarea()`**
-
 Este método maneja la entrega de la tarea.
 Verifica si se ha seleccionado un archivo PDF, de lo contrario muestra un mensaje de error.
 Lee el archivo PDF seleccionado en un array de bytes.
@@ -3150,11 +3080,13 @@ Si la tarea es válida, se guarda la tarea en la base de datos, insertando el PD
         JOptionPane.showMessageDialog(this, "Error al entregar la tarea: " + e.getMessage());
     }
 }
+```
 
 **`obtenerIdTarea(String nombreTarea)`**
 Este método obtiene el ID de una tarea a partir de su nombre.
 Realiza una consulta SQL para buscar el ID de la tarea en la base de datos, basándose en el nombre de la tarea.
 
+```java
     private int obtenerIdTarea(String nombreTarea) {
         String query = "SELECT id FROM tareas WHERE nombre_tarea = ?";
         try (Connection conn = ConexionDB.getConnection(); PreparedStatement pst = conn.prepareStatement(query)) {
@@ -3169,6 +3101,7 @@ Realiza una consulta SQL para buscar el ID de la tarea en la base de datos, bas�
         }
         return -1;
     }
+```
 
 **`cargarTareas(int idAlumno)`**
 Este método carga las tareas asignadas al alumno con el idAlumno proporcionado.
@@ -3176,6 +3109,7 @@ Llama a obtenerTareasAsignadas(idAlumno) para obtener las tareas asignadas desde
 Luego, agrega cada tarea a un comboTareas para que el usuario pueda seleccionarlas.
 Si existen tareas, carga las instrucciones de la primera tarea.
 
+```java
 private void cargarTareas(int idAlumno) {
     listaTareas = obtenerTareasAsignadas(idAlumno); 
     comboTareas.removeAllItems();
