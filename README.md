@@ -3046,6 +3046,228 @@ Método que abre la ventana de inicio de sesión (Login) y cierra la ventana act
 Método que abre una nueva ventana (VPCalificaciones) para gestionar las calificaciones.
 
 
+### VAlEntregarTarea
+
+![image](https://github.com/user-attachments/assets/1f5e99ac-1907-4cf7-a47a-888372cdce19)
+
+**`VAlEntregarTarea()`**
+
+Este es el constructor de la clase, que inicializa la ventana de la interfaz gráfica.
+Con cargarTareas(idAlumno), si el ID del alumno está disponible, carga las tareas asignadas para este alumno.
+
+**`btnVolver`**
+Este método maneja la acción cuando el botón de "Volver" es presionado. Funciona con this.dispose(), ya que este cierra la ventana actual y la elimina de la memoria.
+
+**`btnAnadir`**
+Este método se ejecuta cuando se hace clic en el botón para añadir un archivo.
+Llama al método seleccionarArchivoPDF() que abre un cuadro de diálogo para seleccionar un archivo PDF.
+
+**`btnEntregarTarea`**
+
+Llama al método que maneja la entrega de la tarea, cargando el archivo PDF seleccionado y enviándolo a la base de datos.
+
+**`comboTareas`**
+
+Obtiene el nombre de la tarea seleccionada en el combo y busca la tarea correspondiente en la lista de tareas.
+Si la tarea es válida, carga las instrucciones asociadas con la tarea seleccionada.
+
+**`btnCerrarSesion`**
+
+Abre la ventana de inicio de sesión (Login) y cierra la ventana actual.
+
+**`btnHorario`**
+
+Este método abre la ventana VAlHorarioAlumno, que muestra el horario del alumno.
+
+**`obtenerTareaPorNombre(String nombreTarea)`**
+
+Este método busca una tarea en la lista listaTareas por su nombre:
+Itera a través de la lista de tareas y devuelve la tarea cuyo nombre coincide con el parámetro nombreTarea.
+```java
+private Tarea obtenerTareaPorNombre(String nombreTarea) {
+    for (Tarea tarea : listaTareas) {
+        if (tarea.getNombre().equals(nombreTarea)) {
+            return tarea;
+        }
+    }
+    return null;
+}
+    
+**`seleccionarArchivoPDF()`**
+Este método abre un cuadro de diálogo para seleccionar un archivo PDF.
+Usa JFileChooser para permitir al usuario seleccionar un archivo con extensión .pdf.
+Si el usuario selecciona un archivo, lo guarda en el atributo archivoPDF.
+
+    private void seleccionarArchivoPDF() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("PDF Files", "pdf"));
+        int resultado = fileChooser.showOpenDialog(this);
+
+        if (resultado == JFileChooser.APPROVE_OPTION) {
+            archivoPDF = fileChooser.getSelectedFile();
+        }
+    }
+```
+
+**`entregarTarea()`**
+
+Este método maneja la entrega de la tarea.
+Verifica si se ha seleccionado un archivo PDF, de lo contrario muestra un mensaje de error.
+Lee el archivo PDF seleccionado en un array de bytes.
+Obtiene el nombre de la tarea seleccionada y la busca en la lista de tareas.
+Si la tarea es válida, se guarda la tarea en la base de datos, insertando el PDF entregado en la tabla entregas.
+```java
+    private void entregarTarea() {
+    if (archivoPDF == null) {
+        JOptionPane.showMessageDialog(this, "Por favor seleccione un archivo PDF.");
+        return;
+    }
+
+    byte[] pdfBytes;
+    try (InputStream is = new FileInputStream(archivoPDF)) {
+        pdfBytes = is.readAllBytes();
+    } catch (IOException e) {
+        JOptionPane.showMessageDialog(this, "Error al leer el archivo PDF.");
+        return;
+    }
+
+    String tareaSeleccionadaNombre = (String) comboTareas.getSelectedItem();
+    Tarea tareaSeleccionada = obtenerTareaPorNombre(tareaSeleccionadaNombre);
+
+    if (tareaSeleccionada == null) {
+        JOptionPane.showMessageDialog(this, "Seleccione una tarea válida.");
+        return;
+    }
+
+    String query = "INSERT INTO entregas (id_tarea, id_alumno, pdf_entregado) VALUES (?, ?, ?)";
+    try (Connection conn = ConexionDB.getConnection(); PreparedStatement pst = conn.prepareStatement(query)) {
+        pst.setInt(1, tareaSeleccionada.getId());
+        pst.setInt(2, Sesion.getInstancia().getIdAlumno());
+        pst.setBytes(3, pdfBytes);
+        pst.executeUpdate();
+        JOptionPane.showMessageDialog(this, "Tarea entregada correctamente.");
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(this, "Error al entregar la tarea: " + e.getMessage());
+    }
+}
+
+**`obtenerIdTarea(String nombreTarea)`**
+Este método obtiene el ID de una tarea a partir de su nombre.
+Realiza una consulta SQL para buscar el ID de la tarea en la base de datos, basándose en el nombre de la tarea.
+
+    private int obtenerIdTarea(String nombreTarea) {
+        String query = "SELECT id FROM tareas WHERE nombre_tarea = ?";
+        try (Connection conn = ConexionDB.getConnection(); PreparedStatement pst = conn.prepareStatement(query)) {
+            pst.setString(1, nombreTarea);
+            try (ResultSet rs = pst.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+**`cargarTareas(int idAlumno)`**
+Este método carga las tareas asignadas al alumno con el idAlumno proporcionado.
+Llama a obtenerTareasAsignadas(idAlumno) para obtener las tareas asignadas desde la base de datos.
+Luego, agrega cada tarea a un comboTareas para que el usuario pueda seleccionarlas.
+Si existen tareas, carga las instrucciones de la primera tarea.
+
+private void cargarTareas(int idAlumno) {
+    listaTareas = obtenerTareasAsignadas(idAlumno); 
+    comboTareas.removeAllItems();
+    for (Tarea tarea : listaTareas) {
+        comboTareas.addItem(tarea.getNombre());
+    }
+    if (!listaTareas.isEmpty()) {
+        cargarInstrucciones(listaTareas.get(0));
+    }
+}
+```
+
+**`cargarInstrucciones(Tarea tarea)`**
+Este método carga las instrucciones de la tarea seleccionada.
+Muestra las instrucciones de la tarea en un cuadro de texto (txtInstrucciones).
+Si la tarea tiene un archivo PDF de instrucciones, habilita el botón de descarga (btnDescargarPDF) y asocia una acción para descargar el PDF.
+
+```java
+private void cargarInstrucciones(Tarea tarea) {
+    txtInstrucciones.setText(tarea.getInstrucciones());
+    if (tarea.tienePDFInstrucciones()) {
+        btnDescargarPDF.setEnabled(true);
+        for (ActionListener al : btnDescargarPDF.getActionListeners()) {
+            btnDescargarPDF.removeActionListener(al);
+        }
+        btnDescargarPDF.addActionListener(evt -> descargarInstruccionesPDF(tarea));
+    } else {
+        btnDescargarPDF.setEnabled(false);
+    }
+}
+```
+
+**`obtenerTareasAsignadas(int idAlumno)`**
+Este método obtiene las tareas asignadas a un alumno específico desde la base de datos.
+Realiza una consulta SQL que selecciona las tareas asignadas al alumno con idAlumno mediante una unión de las tablas tareas y grupos_alumnos.
+
+```java
+private List<Tarea> obtenerTareasAsignadas(int idAlumno) {
+    List<Tarea> tareas = new ArrayList<>();
+    String sql = "SELECT t.id, t.nombre_tarea, t.instrucciones, t.pdf_instrucciones " +
+                 "FROM tareas t " +
+                 "JOIN grupos_alumnos ga ON t.id_grupo = ga.id_grupo " +
+                 "WHERE ga.id_alumno = ?";
+
+    try (Connection conn = ConexionDB.getConnection();
+         PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setInt(1, idAlumno);
+        try (ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Tarea tarea = new Tarea(
+                    rs.getInt("id"),
+                    0, // El idGrupo no es relevante para el alumno
+                    rs.getString("nombre_tarea"),
+                    rs.getString("instrucciones"),
+                    rs.getBytes("pdf_instrucciones")
+                );
+                tareas.add(tarea);
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return tareas;
+}
+```
+
+**`descargarInstruccionesPDF(Tarea tarea)`**
+Este método permite al usuario descargar el archivo PDF de instrucciones de la tarea.
+Usa JFileChooser para permitir al usuario seleccionar la ubicación en la que guardar el archivo.
+Si se selecciona un archivo, guarda el contenido del PDF en ese archivo.
+
+```java
+private void descargarInstruccionesPDF(Tarea tarea) {
+    JFileChooser fileChooser = new JFileChooser();
+    fileChooser.setDialogTitle("Guardar PDF de Instrucciones");
+    int resultado = fileChooser.showSaveDialog(this);
+    if (resultado == JFileChooser.APPROVE_OPTION) {
+        File archivoSeleccionado = fileChooser.getSelectedFile();
+        try (FileOutputStream fos = new FileOutputStream(archivoSeleccionado)) {
+            fos.write(tarea.getPdfInstrucciones());
+            JOptionPane.showMessageDialog(this, "PDF de instrucciones descargado correctamente.");
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error al descargar el PDF: " + e.getMessage());
+        }
+    }
+}
+```
+
+
+## Video Explicativo
 
 https://github.com/user-attachments/assets/7335c8d4-960e-4196-b73b-60a59798332b
 
