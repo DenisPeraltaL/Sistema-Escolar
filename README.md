@@ -2894,6 +2894,158 @@ private void cargarMaterias() {
 }
 ```
 
+### VPNuevaTarea
+
+La clase VPNuevaTarea es una ventana para asignar tareas a grupos de estudiantes. A continuación se describen de manera resumida los métodos de esta clase:
+
+
+![image](https://github.com/user-attachments/assets/d8030eb7-5c41-4fdd-9670-8abda4895b0d)
+
+**`VPNuevaTarea`**
+
+En el constructor de la clase se inicializa los componentes, obtiene el ID del profesor desde la sesión, valida si el ID es nulo (en cuyo caso cierra la ventana) y configura la ventana para que se maximice y tenga el título "Asignar Tareas". También llama a cargarGruposProfesor para cargar los grupos del profesor.
+
+**`seleccionarArchivoPDF`**
+
+Método que permite al usuario seleccionar un archivo PDF para las instrucciones de la tarea. Usa un JFileChooser para elegir el archivo.
+
+```java
+    private void seleccionarArchivoPDF() {
+        // Elegir el archivo PDF con las instrucciones
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("PDF Files", "pdf"));
+        int resultado = fileChooser.showOpenDialog(this);
+
+        if (resultado == JFileChooser.APPROVE_OPTION) {
+            archivoPDF = fileChooser.getSelectedFile();
+        }
+    }
+```
+
+**`asignarTarea`**
+
+Método que asigna la tarea. Valida que los campos estén completos, convierte el archivo PDF a un arreglo de bytes (si se seleccionó un archivo) y crea un objeto Tarea con los datos introducidos. Luego llama al método asignarTarea del DAO (TareaDAO) para guardar la tarea en la base de datos.
+
+```java
+ private void asignarTarea() {
+        String nombreTarea = txtNombreTarea.getText();
+        String instrucciones = txtInstrucciones.getText();
+
+        if (nombreTarea.isEmpty() || instrucciones.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor complete todos los campos.");
+            return;
+        }
+
+        byte[] pdfBytes = null;
+        if (archivoPDF != null) {
+            try (InputStream is = new FileInputStream(archivoPDF)) {
+                pdfBytes = is.readAllBytes();
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Error al leer el archivo PDF.");
+                return;
+            }
+        }
+
+        // Obtener el grupo seleccionado
+        String grupoSeleccionado = (String) cmbGrupo.getSelectedItem();
+        if (grupoSeleccionado == null || grupoSeleccionado.equals("Seleccionar Grupo")) {
+            JOptionPane.showMessageDialog(this, "Por favor seleccione un grupo.");
+            return;
+        }
+
+        // Extraer el ID del grupo del texto seleccionado
+        int idGrupo = Integer.parseInt(grupoSeleccionado.split(" - ")[0]);
+
+        // Crear objeto Tarea
+        Tarea tarea = new Tarea(0, idGrupo, nombreTarea, instrucciones, pdfBytes);
+
+        TareaDAO controlador = new TareaDAO();
+        try {
+            controlador.asignarTarea(tarea);
+            JOptionPane.showMessageDialog(this, "Tarea asignada correctamente.");
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error al asignar la tarea: " + ex.getMessage());
+        }
+    }
+```
+
+**`cargarGruposProfesor(int idProfesor)`**
+
+Método que carga los grupos del profesor desde la base de datos. Ejecuta una consulta SQL para obtener los grupos asociados al ID del profesor y los agrega a un JComboBox (cmbGrupo).
+
+```java
+    private void cargarGruposProfesor(int idProfesor) {
+        Connection con = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            con = ConexionDB.conectar();
+            String sql = "SELECT g.id, g.nombre_grupo FROM grupos g WHERE g.id_profesor = ?";
+            stmt = con.prepareStatement(sql);
+            stmt.setInt(1, idProfesor);
+
+            rs = stmt.executeQuery();
+
+            cmbGrupo.removeAllItems();
+            cmbGrupo.addItem("Seleccionar Grupo");
+
+            while (rs.next()) {
+                int idGrupo = rs.getInt("id");
+                String nombreGrupo = rs.getString("nombre_grupo");
+                cmbGrupo.addItem(idGrupo + " - " + nombreGrupo);
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error al cargar los grupos: " + e.getMessage());
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+                if (con != null) ConexionDB.cerrarConexion(con);
+            } catch (SQLException ex) {
+                System.out.println("Error al cerrar recursos: " + ex.getMessage());
+            }
+        }
+    }
+```
+
+**`btnGenerarInsActionPerformed`**
+
+Método que se ejecuta cuando se presiona el botón "Generar Instrucciones". Llama al método seleccionarArchivoPDF para seleccionar un archivo PDF con las instrucciones de la tarea.
+
+**`btnVolverActionPerformed`**
+
+Método que cierra la ventana actual.
+
+**`btnCancelarActionPerformed`**
+
+Método que limpia los campos de texto (txtNombreTarea y txtInstrucciones).
+
+**`btnCrearActionPerformed`**
+
+Método que se ejecuta cuando se presiona el botón "Crear". Llama al método asignarTarea para asignar la tarea.
+
+**`btnAlumnoActionPerformed`**
+
+Método que abre una nueva ventana (VPAlumnos) para gestionar los alumnos.
+
+**`btnTareaActionPerformed`**
+
+Método que abre una nueva ventana (VPNuevaTarea) para asignar una nueva tarea.
+
+**`btnHorarioActionPerformed`**
+
+Método que abre una nueva ventana (VPHorarioProfesor) para ver el horario del profesor.
+
+**`btnCerrarSesionActionPerformed`**
+
+Método que abre la ventana de inicio de sesión (Login) y cierra la ventana actual.
+
+**`btnCalificacionesActionPerformed`**
+
+Método que abre una nueva ventana (VPCalificaciones) para gestionar las calificaciones.
+
+
 
 https://github.com/user-attachments/assets/7335c8d4-960e-4196-b73b-60a59798332b
 
