@@ -2893,3 +2893,7 @@ private void cargarMaterias() {
     }
 }
 ```
+
+
+https://github.com/user-attachments/assets/7335c8d4-960e-4196-b73b-60a59798332b
+
